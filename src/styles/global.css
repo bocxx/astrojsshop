@@ -1,20 +1,11 @@
 @import "tailwindcss";
 
 @theme {
-  /* Light Mode Colors */
   --color-brand-beige: #f2e8df;
   --color-brand-purple: #bd90c4;
   --color-brand-blue: #37469b;
   --color-brand-coral: #ff7e6d;
   --color-brand-offwhite: #faf8f5;
-  
-  /* Dark Mode Colors */
-  --color-dark-bg: #050510;
-  --color-dark-surface: #0a0a15;
-  --color-dark-card: #0f0f1f;
-  --color-dark-border: #1a1a2e;
-  --color-dark-text: #e8e8f5;
-  --color-dark-text-secondary: #8888a8;
 }
 
 /* Root defaults */
@@ -25,18 +16,6 @@
   --text-primary: var(--color-brand-blue);
   --text-secondary: rgba(55, 70, 155, 0.6);
   --border-color: rgba(189, 144, 196, 0.1);
-}
-
-/* Dark Mode */
-:root.dark {
-  --bg-primary: var(--color-dark-bg);
-  --bg-surface: var(--color-dark-surface);
-  --bg-glass: rgba(10, 10, 21, 0.95);
-  --text-primary: var(--color-dark-text);
-  --text-secondary: var(--color-dark-text-secondary);
-  --border-color: var(--color-dark-border);
-  --color-brand-beige: #1a1a2e;
-  --color-brand-offwhite: #0f0f1f;
 }
 
 body {
@@ -60,25 +39,9 @@ body::before {
   z-index: -1;
   background: linear-gradient(
     135deg,
-    rgba(189, 144, 196, 0.3) 0%,
-    rgba(255, 126, 109, 0.2) 25%,
-    rgba(242, 232, 223, 0.4) 50%,
-    rgba(55, 70, 155, 0.15) 75%,
-    rgba(189, 144, 196, 0.25) 100%
-  );
-  transition: opacity 0.3s ease;
-}
-
-/* Dark Mode Gradient */
-:root.dark body::before {
-  background: linear-gradient(
-    135deg,
-    rgba(139, 92, 246, 0.25) 0%,
-    rgba(189, 144, 196, 0.18) 20%,
-    rgba(236, 72, 153, 0.15) 40%,
-    rgba(5, 5, 16, 0.85) 60%,
-    rgba(139, 92, 246, 0.2) 80%,
-    rgba(189, 144, 196, 0.25) 100%
+    rgba(254, 215, 170, 0.4) 0%,
+    rgba(248, 113, 113, 0.35) 50%,
+    rgba(219, 39, 119, 0.3) 100%
   );
 }
 
