@@ -33,6 +33,20 @@ const initialHasMore = totalPhotos > INITIAL_LOAD;
 
 <Layout title="Fotogalerij">
   <div class="min-h-screen pb-24">
+    <!-- Party Logo & Support -->
+    <div class="mb-8 text-center space-y-4">
+      <div class="flex justify-center">
+        <img 
+          src="/logo.png" 
+          alt="Samen voor Krimpen" 
+          class="h-32 w-auto"
+        />
+      </div>
+      <p class="text-xl font-bold text-[--color-brand-blue]">
+        Steun de partij!
+      </p>
+    </div>
+
     <!-- Photographer Credit -->
     <div class="mb-6 text-center">
       <p class="text-sm text-[--color-brand-blue]/70">
@@ -73,10 +87,10 @@ const initialHasMore = totalPhotos > INITIAL_LOAD;
     <!-- Photo Grid -->
     <div id="photoGrid" class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-x-4 gap-y-28 lg:gap-y-16">
       {photos.map((photo) => (
-        <article class="photo-card group relative h-48 flex flex-col rounded-xl bg-white bg-clip-border text-gray-700 shadow-md">
+        <article class="photo-card group relative h-48 flex flex-col rounded-xl bg-white bg-clip-border text-gray-700 shadow-md hover:shadow-xl transition-shadow duration-300">
           <!-- Image Container -->
           <div class="h-28">
-            <div class="absolute -top-20 lg:-top-[10%] left-[5%] z-10 group-hover:-top-[40%] group-hover:opacity-90 duration-300 w-[90%] h-48 bg-gradient-to-br from-[--color-brand-blue] via-[--color-brand-purple] to-[--color-brand-coral] rounded-xl flex items-center justify-center overflow-hidden shadow-lg">
+            <div class="absolute -top-20 lg:-top-[10%] left-[5%] z-10 w-[90%] h-48 bg-gradient-to-br from-[--color-brand-blue] via-[--color-brand-purple] to-[--color-brand-coral] rounded-xl flex items-center justify-center overflow-hidden shadow-lg group-hover:shadow-2xl group-hover:-translate-y-1 transition-all duration-300">
               <img
                 src={`/api/photos/thumb/${photo.id}`}
                 alt={photo.name}
@@ -85,12 +99,8 @@ const initialHasMore = totalPhotos > INITIAL_LOAD;
                 draggable="false"
                 oncontextmenu="return false;"
               />
-              <!-- Title overlay top-right -->
-              <div class="absolute top-2 right-2 text-white text-sm font-medium bg-black/50 px-3 py-1.5 rounded backdrop-blur-sm pointer-events-none z-10">
-                {photo.name}
-              </div>
               <!-- Watermark overlay -->
-              <div class="absolute bottom-2 left-2 text-white/70 text-xs font-medium bg-black/30 px-2 py-1 rounded backdrop-blur-sm pointer-events-none z-10">
+              <div class="absolute top-2 right-2 text-white/80 text-[10px] font-medium bg-black/40 px-2 py-1 rounded backdrop-blur-sm pointer-events-none z-30">
                 © Samen voor Krimpen
               </div>
               <!-- Clickable overlay for lightbox -->
@@ -103,19 +113,13 @@ const initialHasMore = totalPhotos > INITIAL_LOAD;
           </div>
 
           <!-- Content - Button Only -->
-          <div class="p-6 z-30 w-full relative flex items-center justify-center">
-            <!-- Add to Cart Button -->
-            <button
-              class="add-to-cart group/btn relative w-full px-4 py-2.5 text-sm font-bold text-gray-900 bg-white/95 backdrop-blur-sm rounded-xl overflow-hidden transition-all duration-300 hover:shadow-xl hover:bg-white hover:scale-105 active:scale-95 opacity-0 group-hover:opacity-100 flex items-center justify-center gap-2 border border-gray-200"
-              data-photo-id={photo.id}
-              data-photo-name={photo.name}
-            >
-              <!-- Button content -->
-              <span class="relative z-10 flex items-center gap-2">
-                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M12 6v6m0 0v6m0-6h6m-6 0H6"></path>
+          <div class="p-4 z-30 w-full relative flex items-center justify-center">
+            <button class="add-to-cart group/btn relative px-4 py-2 text-xs font-semibold text-gray-800 bg-white rounded-xl overflow-hidden transition-all duration-300 hover:shadow-xl hover:shadow-[--color-brand-purple]/40 hover:scale-[1.02] active:scale-95 flex items-center justify-center gap-1.5 shadow-lg border-2 border-[--color-brand-purple]/30 backdrop-blur-sm" data-photo-id={photo.id} data-photo-name={photo.name}>
+              <span class="relative z-10 flex items-center gap-1.5">
+                <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M16 11V7a4 4 0 00-8 0v4M5 9h14l1 12H4L5 9z"></path>
                 </svg>
-                <span class="tracking-wide text-xs">Toevoegen</span>
+                <span class="tracking-wide">Bestellen</span>
               </span>
             </button>
           </div>
@@ -141,7 +145,8 @@ const initialHasMore = totalPhotos > INITIAL_LOAD;
     <div id="scrollTrigger" class="h-10"></div>
 
     <!-- Floating Cart Button -->
-    <button
+    <a
+      href="/cart"
       id="cartToggle"
       class="fixed bottom-8 right-8 z-40 hidden p-6 text-white bg-gradient-to-br from-[--color-brand-blue] via-[--color-brand-purple] to-[--color-brand-coral] rounded-full shadow-2xl transition-all duration-500 hover:shadow-[--color-brand-purple]/70 hover:scale-110 active:scale-95 group border-4 border-white/30 backdrop-blur-sm"
     >
@@ -157,58 +162,10 @@ const initialHasMore = totalPhotos > INITIAL_LOAD;
         </svg>
         <span id="cartBadge" class="absolute -top-3 -right-3 bg-gradient-to-r from-[--color-brand-coral] to-red-500 text-white text-xs font-black rounded-full min-w-[1.75rem] h-7 flex items-center justify-center px-2 shadow-xl border-3 border-white animate-bounce">0</span>
       </div>
-    </button>
-
-    <!-- Cart Drawer -->
-    <div id="cartBackdrop" class="fixed inset-0 bg-black/40 backdrop-blur-sm transition-all duration-300 z-40 hidden opacity-0"></div>
-    <div id="cart" class="fixed top-0 right-0 h-full w-full max-w-md bg-white/95 backdrop-blur-2xl shadow-2xl transition-all duration-500 z-50 translate-x-full flex flex-col border-l border-[--border-color]">
-      <div class="p-6 border-b border-[--color-brand-purple]/10 bg-gradient-to-r from-[--color-brand-blue]/5 via-[--color-brand-purple]/5 to-[--color-brand-coral]/5">
-        <div class="flex items-center justify-between">
-          <div class="flex items-center space-x-3">
-            <div class="p-2.5 bg-gradient-to-br from-[--color-brand-blue] to-[--color-brand-purple] rounded-2xl shadow-lg">
-              <svg class="w-6 h-6 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 11V7a4 4 0 00-8 0v4M5 9h14l1 12H4L5 9z"></path>
-              </svg>
-            </div>
-            <div>
-              <h2 class="text-xl font-bold text-[--color-brand-blue]">Jouw Bestelling</h2>
-              <p class="text-xs text-[--color-brand-blue]/50"><span id="cartCount">0</span> items</p>
-            </div>
-          </div>
-          <button id="closeCart" class="p-2 text-[--color-brand-blue]/50 hover:text-[--color-brand-blue] hover:bg-[--color-brand-purple]/10 rounded-xl transition-all duration-200">
-            <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path>
-            </svg>
-          </button>
-        </div>
-      </div>
-      <div class="flex-1 overflow-y-auto p-6">
-        <div id="cartItems" class="space-y-3"></div>
-        <div id="emptyCart" class="hidden flex flex-col items-center justify-center py-16 text-center">
-          <div class="w-24 h-24 bg-gradient-to-br from-[--color-brand-purple]/10 to-[--color-brand-coral]/10 rounded-full flex items-center justify-center mb-4">
-            <svg class="w-12 h-12 text-[--color-brand-blue]/30" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 11V7a4 4 0 00-8 0v4M5 9h14l1 12H4L5 9z"></path>
-            </svg>
-          </div>
-          <h3 class="text-lg font-semibold text-[--color-brand-blue] mb-2">Winkelwagen is leeg</h3>
-          <p class="text-sm text-[--color-brand-blue]/50">Voeg foto's toe om te bestellen</p>
-        </div>
-      </div>
-      <div class="p-6 border-t border-[--color-brand-purple]/10 bg-gradient-to-r from-[--color-brand-blue]/5 via-[--color-brand-purple]/5 to-[--color-brand-coral]/5 space-y-3">
-        <a href="/cart" class="block w-full px-6 py-3.5 bg-gradient-to-r from-[--color-brand-blue] to-[--color-brand-purple] text-white rounded-2xl hover:shadow-xl hover:shadow-[--color-brand-purple]/30 hover:scale-105 active:scale-95 transition-all duration-300 font-semibold text-center">
-          Bekijk Winkelwagen
-        </a>
-        <button id="placeOrderBtn" class="hidden w-full px-6 py-3.5 bg-gradient-to-r from-[--color-brand-coral] to-[--color-brand-purple] text-white rounded-2xl hover:shadow-xl hover:shadow-[--color-brand-coral]/30 hover:scale-105 active:scale-95 transition-all duration-300 font-semibold flex items-center justify-center space-x-2">
-          <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path>
-          </svg>
-          <span>Bestelling Plaatsen</span>
-        </button>
-      </div>
-    </div>
+    </a>
 
     <!-- Enhanced Lightbox -->
-    <div id="lightbox" class="fixed inset-0 z-[60] hidden opacity-0 items-center justify-center p-4 bg-black/90 backdrop-blur-md transition-all duration-300">
+    <div id="lightbox" class="fixed inset-0 z-[60] hidden opacity-0 bg-black/90 backdrop-blur-md transition-all duration-300 flex flex-col">
       <!-- Close Button -->
       <button id="closeLightbox" class="absolute top-6 right-6 text-white/80 hover:text-white bg-white/10 hover:bg-white/20 backdrop-blur-md p-3 rounded-2xl transition-all duration-300 hover:scale-110 z-50">
         <svg class="w-7 h-7" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -217,8 +174,19 @@ const initialHasMore = totalPhotos > INITIAL_LOAD;
       </button>
       
       <!-- Navigation Hints -->
-      <div class="absolute top-6 left-6 text-white/60 text-sm bg-white/10 backdrop-blur-md px-4 py-2 rounded-2xl z-50">
+      <div class="absolute top-6 left-6 text-white/60 text-sm bg-white/10 backdrop-blur-md px-4 py-2 rounded-2xl z-50 hidden md:block">
         <span>ESC om te sluiten • ← → om te navigeren</span>
+      </div>
+      
+      <!-- Mobile Swipe Hint -->
+      <div class="absolute top-6 left-1/2 -translate-x-1/2 text-white/60 text-xs bg-white/10 backdrop-blur-md px-4 py-2 rounded-full z-50 md:hidden flex items-center space-x-2 animate-pulse">
+        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 16l-4-4m0 0l4-4m-4 4h18"></path>
+        </svg>
+        <span>Swipe om te navigeren</span>
+        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 8l4 4m0 0l-4 4m4-4H3"></path>
+        </svg>
       </div>
 
       <!-- Left Navigation Area (clickable) -->
@@ -239,15 +207,23 @@ const initialHasMore = totalPhotos > INITIAL_LOAD;
         </div>
       </button>
 
-      <!-- Center Content -->
-      <div class="max-w-7xl max-h-[90vh] w-full flex flex-col items-center space-y-6 relative z-40">
-        <div class="relative rounded-3xl overflow-hidden shadow-2xl bg-white/5 backdrop-blur-sm border border-white/10 p-2">
-          <img id="lightboxImage" src="" alt="" class="max-w-full max-h-[70vh] object-contain rounded-2xl select-none" draggable="false" oncontextmenu="return false;" />
+      <!-- Center Content - Image Area (flex-1 to take available space) -->
+      <div class="flex-1 flex items-center justify-center w-full p-4 pb-0 overflow-hidden">
+        <div id="lightboxImageContainer" class="relative rounded-3xl overflow-hidden shadow-2xl bg-white/5 backdrop-blur-sm border border-white/10 p-2 touch-pan-y max-w-full max-h-full">
+          <img id="lightboxImage" src="" alt="" class="max-w-full max-h-[calc(100vh-250px)] md:max-h-[calc(100vh-200px)] object-contain rounded-2xl select-none" draggable="false" oncontextmenu="return false;" />
+          <!-- Watermark on lightbox image -->
+          <div class="absolute top-4 right-4 text-white/90 text-sm font-semibold bg-black/50 px-3 py-1.5 rounded-lg backdrop-blur-md pointer-events-none z-30 shadow-lg">
+            © Samen voor Krimpen
+          </div>
         </div>
-        <div class="text-center space-y-4 bg-white/10 backdrop-blur-xl rounded-3xl p-6 border border-white/20 max-w-2xl w-full">
-          <h2 id="lightboxTitle" class="text-2xl font-bold text-white"></h2>
-          <button id="lightboxAddToCart" class="px-8 py-3.5 bg-gradient-to-r from-[--color-brand-coral] to-[--color-brand-purple] text-white rounded-2xl hover:shadow-2xl hover:shadow-[--color-brand-coral]/50 hover:scale-105 active:scale-95 transition-all duration-300 font-semibold flex items-center justify-center space-x-2 mx-auto">
-            <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+      </div>
+
+      <!-- Bottom Action Bar - Fixed at bottom -->
+      <div class="w-full bg-gradient-to-t from-black via-black/95 to-transparent pt-8 pb-safe z-50">
+        <div class="max-w-2xl mx-auto px-4 pb-4 space-y-3">
+          <h2 id="lightboxTitle" class="text-lg md:text-2xl font-bold text-white text-center truncate"></h2>
+          <button id="lightboxAddToCart" class="w-full px-6 py-4 bg-gradient-to-r from-[--color-brand-coral] to-[--color-brand-purple] text-white rounded-2xl hover:shadow-2xl hover:shadow-[--color-brand-coral]/50 active:scale-95 transition-all duration-300 font-bold flex items-center justify-center space-x-3 text-lg shadow-2xl border-2 border-white/20">
+            <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
               <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6v6m0 0v6m0-6h6m-6 0H6"></path>
             </svg>
             <span>Toevoegen aan Winkelwagen</span>
@@ -257,7 +233,7 @@ const initialHasMore = totalPhotos > INITIAL_LOAD;
     </div>
 
     <!-- Toast Container -->
-    <div id="toastContainer" class="fixed top-6 right-6 z-[70] space-y-3 pointer-events-none"></div>
+    <div id="toastContainer" class="fixed top-24 right-6 z-[70] space-y-3 pointer-events-none"></div>
   </div>
 
   <script is:inline define:vars={{ initialHasMore, totalPhotos, initialPhotoCount: photos.length }}>
@@ -327,8 +303,8 @@ const initialHasMore = totalPhotos > INITIAL_LOAD;
       toast.className = `pointer-events-auto transform translate-x-96 transition-all duration-500 ease-out`;
 
       const colors = {
-        success: 'from-green-500 to-emerald-500',
-        error: 'from-red-500 to-rose-500',
+        success: 'from-[--color-brand-purple] to-[--color-brand-coral]',
+        error: 'from-[--color-brand-coral] to-rose-500',
         info: 'from-[--color-brand-blue] to-[--color-brand-purple]'
       };
 
@@ -339,11 +315,11 @@ const initialHasMore = totalPhotos > INITIAL_LOAD;
       };
 
       toast.innerHTML = `
-        <div class="bg-gradient-to-r ${colors[type]} text-white px-6 py-4 rounded-2xl shadow-2xl backdrop-blur-xl border border-white/20 flex items-center space-x-3 min-w-[300px]">
-          <svg class="w-6 h-6 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+        <div class="bg-gradient-to-r ${colors[type]} text-white px-4 py-3 rounded-xl shadow-2xl border-2 border-white/40 flex items-center space-x-2.5 max-w-sm">
+          <svg class="w-5 h-5 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
             ${icons[type]}
           </svg>
-          <span class="font-medium">${message}</span>
+          <span class="font-semibold text-sm">${message}</span>
         </div>
       `;
 
@@ -377,100 +353,29 @@ const initialHasMore = totalPhotos > INITIAL_LOAD;
       localStorage.setItem('photo-cart', JSON.stringify(Array.from(cart.values())));
     }
 
-    function showCart() {
-      const cartEl = document.getElementById('cart');
-      const cartBackdrop = document.getElementById('cartBackdrop');
-      const cartToggle = document.getElementById('cartToggle');
-
-      if (cartEl && cartBackdrop && cartToggle) {
-        cartBackdrop.classList.remove('hidden');
-        setTimeout(() => cartBackdrop.classList.add('opacity-100'), 10);
-        cartEl.classList.remove('translate-x-full');
-        cartToggle.classList.add('hidden');
-        cartVisible = true;
-        document.body.style.overflow = 'hidden';
-      }
-    }
-
-    function hideCart() {
-      const cartEl = document.getElementById('cart');
-      const cartBackdrop = document.getElementById('cartBackdrop');
-      const cartToggle = document.getElementById('cartToggle');
-
-      if (cartEl && cartBackdrop && cartToggle) {
-        cartEl.classList.add('translate-x-full');
-        cartBackdrop.classList.remove('opacity-100');
-        setTimeout(() => cartBackdrop.classList.add('hidden'), 300);
-
-        if (cart.size > 0) {
-          cartToggle.classList.remove('hidden');
-        }
-        cartVisible = false;
-        document.body.style.overflow = 'auto';
-      }
-    }
-
     function updateCart() {
-      const cartItems = document.getElementById('cartItems');
-      const emptyCart = document.getElementById('emptyCart');
-      const placeOrderBtn = document.getElementById('placeOrderBtn');
-      const cartCount = document.getElementById('cartCount');
       const cartBadge = document.getElementById('cartBadge');
+      const mobileCartBadge = document.getElementById('mobileCartBadge');
       const cartToggle = document.getElementById('cartToggle');
-
-      if (!cartItems || !placeOrderBtn || !cartCount || !cartBadge || !emptyCart) return;
 
       const totalItems = Array.from(cart.values()).reduce((sum, item) => sum + item.quantity, 0);
-      cartCount.textContent = totalItems.toString();
-      cartBadge.textContent = totalItems.toString();
+      
+      if (cartBadge) cartBadge.textContent = totalItems.toString();
+      if (mobileCartBadge) mobileCartBadge.textContent = totalItems.toString();
 
-      // Show/hide toggle button and empty state
+      // Show/hide toggle button
       if (cart.size === 0) {
         cartToggle?.classList.add('hidden');
-        cartItems.classList.add('hidden');
-        emptyCart.classList.remove('hidden');
-        placeOrderBtn.classList.add('hidden');
-        return;
       } else {
-        cartItems.classList.remove('hidden');
-        emptyCart.classList.add('hidden');
-        if (!cartVisible) {
-          cartToggle?.classList.remove('hidden');
-        }
+        cartToggle?.classList.remove('hidden');
       }
 
-      cartItems.innerHTML = '';
-      cart.forEach((item) => {
-        const div = document.createElement('div');
-        div.className = 'group bg-gradient-to-br from-white to-[--color-brand-beige]/30 rounded-2xl border border-[--color-brand-purple]/10 hover:border-[--color-brand-purple]/30 transition-all duration-300 overflow-hidden';
-        div.innerHTML = `
-          <div class="flex items-center justify-between p-4">
-            <div class="flex-1 min-w-0">
-              <h4 class="text-sm font-semibold text-[--color-brand-blue] truncate">${item.name}</h4>
-              <p class="text-xs text-[--color-brand-blue]/50 mt-0.5">Aantal: <span class="font-semibold text-[--color-brand-coral]">×${item.quantity}</span></p>
-            </div>
-            <button class="remove-btn ml-3 p-2 text-[--color-brand-coral]/60 hover:text-[--color-brand-coral] hover:bg-[--color-brand-coral]/10 rounded-xl transition-all duration-200 hover:scale-110" data-photo-id="${item.id}">
-              <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"></path>
-              </svg>
-            </button>
-          </div>
-        `;
-        cartItems.appendChild(div);
-      });
-
-      placeOrderBtn.classList.remove('hidden');
       saveCart();
     }
 
     // Load cart on page load
     loadCart();
     updateCart();
-
-    // Cart toggle handlers
-    document.getElementById('cartToggle')?.addEventListener('click', showCart);
-    document.getElementById('closeCart')?.addEventListener('click', hideCart);
-    document.getElementById('cartBackdrop')?.addEventListener('click', hideCart);
 
     // Add to cart functionality
     function attachAddToCartListener(button: Element) {
@@ -489,6 +394,8 @@ const initialHasMore = totalPhotos > INITIAL_LOAD;
 
         // Button feedback animation
         const originalHTML = btn.innerHTML;
+        const originalClasses = btn.className;
+        btn.className = originalClasses.replace('from-[--color-brand-blue]', 'from-[--color-brand-purple]').replace('via-[--color-brand-purple]', 'via-[--color-brand-coral]');
         btn.innerHTML = `
           <span class="relative z-10 flex items-center gap-2">
             <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -497,102 +404,20 @@ const initialHasMore = totalPhotos > INITIAL_LOAD;
             <span class="font-bold tracking-wide">Toegevoegd!</span>
           </span>
         `;
-        btn.style.background = 'linear-gradient(to right, #10b981, #059669)';
 
         setTimeout(() => {
           btn.innerHTML = originalHTML;
-          btn.style.background = '';
+          btn.className = originalClasses;
         }, 1500);
 
         updateCart();
         showToast(`${photoName} toegevoegd aan winkelwagen`, 'success');
-        showCart();
-
-        // Auto-hide cart after 4 seconds
-        setTimeout(() => {
-          if (cartVisible) {
-            hideCart();
-          }
-        }, 4000);
       });
     }
 
     // Attach listeners to initial cart buttons
     document.querySelectorAll('.add-to-cart').forEach(attachAddToCartListener);
 
-    // Remove from cart
-    document.getElementById('cartItems')?.addEventListener('click', (e) => {
-      const target = e.target as HTMLElement;
-      const button = target.closest('.remove-btn') as HTMLButtonElement;
-      if (button) {
-        const photoId = button.dataset.photoId!;
-        const item = cart.get(photoId);
-        if (item) {
-          showToast(`${item.name} verwijderd uit winkelwagen`, 'info');
-          cart.delete(photoId);
-          updateCart();
-        }
-      }
-    });
-
-    // Place order
-    document.getElementById('placeOrderBtn')?.addEventListener('click', async () => {
-      const items = Array.from(cart.values()).map(item => ({
-        photoId: item.id,
-        photoName: item.name,
-        quantity: item.quantity,
-      }));
-
-      const btn = document.getElementById('placeOrderBtn') as HTMLButtonElement;
-      btn.disabled = true;
-      btn.innerHTML = `
-        <svg class="w-5 h-5 animate-spin" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-          <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
-          <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
-        </svg>
-        <span>Bezig met bestellen...</span>
-      `;
-
-      try {
-        const { data, error } = await actions.placeOrder({ items });
-
-        if (error) {
-          showToast('Fout: ' + error.message, 'error');
-          btn.disabled = false;
-          btn.innerHTML = `
-            <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path>
-            </svg>
-            <span>Bestelling Plaatsen</span>
-          `;
-          return;
-        }
-
-        cart.clear();
-        updateCart();
-        hideCart();
-
-        showToast(`Bestelling geplaatst! Bestelnummer: ${data.orderNumber}`, 'success', 6000);
-
-        btn.disabled = false;
-        btn.innerHTML = `
-          <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path>
-          </svg>
-          <span>Bestelling Plaatsen</span>
-        `;
-      } catch (err) {
-        showToast('Fout bij het plaatsen van de bestelling', 'error');
-        console.error(err);
-        btn.disabled = false;
-        btn.innerHTML = `
-          <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path>
-          </svg>
-          <span>Bestelling Plaatsen</span>
-        `;
-      }
-    });
 
     // Lightbox functionality
     const lightbox = document.getElementById('lightbox');
@@ -688,6 +513,58 @@ const initialHasMore = totalPhotos > INITIAL_LOAD;
       }
     });
 
+    // Touch/Swipe functionality for mobile
+    let touchStartX = 0;
+    let touchEndX = 0;
+    let touchStartY = 0;
+    let touchEndY = 0;
+    const minSwipeDistance = 50;
+
+    const lightboxImageContainer = document.getElementById('lightboxImageContainer');
+
+    lightboxImageContainer?.addEventListener('touchstart', (e) => {
+      touchStartX = e.touches[0].clientX;
+      touchStartY = e.touches[0].clientY;
+    }, { passive: true });
+
+    lightboxImageContainer?.addEventListener('touchmove', (e) => {
+      touchEndX = e.touches[0].clientX;
+      touchEndY = e.touches[0].clientY;
+    }, { passive: true });
+
+    lightboxImageContainer?.addEventListener('touchend', () => {
+      const swipeDistanceX = touchStartX - touchEndX;
+      const swipeDistanceY = Math.abs(touchStartY - touchEndY);
+      
+      // Only trigger swipe if horizontal movement is greater than vertical (to allow vertical scrolling)
+      if (Math.abs(swipeDistanceX) > minSwipeDistance && Math.abs(swipeDistanceX) > swipeDistanceY) {
+        if (swipeDistanceX > 0) {
+          // Swiped left - show next photo
+          navigatePhoto('next');
+        } else {
+          // Swiped right - show previous photo
+          navigatePhoto('prev');
+        }
+      }
+    });
+
+    // Hide mobile swipe hint after first interaction
+    let hasInteracted = false;
+    const hideSwipeHint = () => {
+      if (!hasInteracted) {
+        hasInteracted = true;
+        const mobileHint = document.querySelector('.md\\:hidden.animate-pulse');
+        if (mobileHint) {
+          (mobileHint as HTMLElement).style.opacity = '0';
+          setTimeout(() => mobileHint.remove(), 300);
+        }
+      }
+    };
+
+    lightboxImageContainer?.addEventListener('touchstart', hideSwipeHint, { once: true });
+    prevPhotoBtn?.addEventListener('click', hideSwipeHint);
+    nextPhotoBtn?.addEventListener('click', hideSwipeHint);
+
     lightboxAddToCart?.addEventListener('click', () => {
       if (currentLightboxPhoto) {
         const { id, name } = currentLightboxPhoto;
@@ -720,11 +597,11 @@ const initialHasMore = totalPhotos > INITIAL_LOAD;
     // Infinite scroll
     function createPhotoCard(photo: any) {
       const card = document.createElement('div');
-      card.className = 'photo-card group relative h-48 flex flex-col rounded-xl bg-white bg-clip-border text-gray-700 shadow-md';
+      card.className = 'photo-card group relative h-48 flex flex-col rounded-xl bg-white bg-clip-border text-gray-700 shadow-md hover:shadow-xl transition-shadow duration-300';
 
       card.innerHTML = `
         <div class="h-28">
-          <div class="absolute -top-20 lg:-top-[10%] left-[5%] z-10 group-hover:-top-[40%] group-hover:opacity-90 duration-300 w-[90%] h-48 bg-gradient-to-br from-[--color-brand-blue] via-[--color-brand-purple] to-[--color-brand-coral] rounded-xl flex items-center justify-center overflow-hidden shadow-lg">
+          <div class="absolute -top-20 lg:-top-[10%] left-[5%] z-10 w-[90%] h-48 bg-gradient-to-br from-[--color-brand-blue] via-[--color-brand-purple] to-[--color-brand-coral] rounded-xl flex items-center justify-center overflow-hidden shadow-lg group-hover:shadow-2xl group-hover:-translate-y-1 transition-all duration-300">
             <img
               src="/api/photos/thumb/${photo.id}"
               alt="${photo.name}"
@@ -733,10 +610,8 @@ const initialHasMore = totalPhotos > INITIAL_LOAD;
               draggable="false"
               oncontextmenu="return false;"
             />
-            <div class="absolute top-2 right-2 text-white text-sm font-medium bg-black/50 px-3 py-1.5 rounded backdrop-blur-sm pointer-events-none z-10">
-              ${photo.name}
-            </div>
-            <div class="absolute bottom-2 left-2 text-white/70 text-xs font-medium bg-black/30 px-2 py-1 rounded backdrop-blur-sm pointer-events-none z-10">
+            <!-- Watermark overlay -->
+            <div class="absolute top-2 right-2 text-white/80 text-[10px] font-medium bg-black/40 px-2 py-1 rounded backdrop-blur-sm pointer-events-none z-30">
               © Samen voor Krimpen
             </div>
             <div
@@ -746,17 +621,17 @@ const initialHasMore = totalPhotos > INITIAL_LOAD;
             ></div>
           </div>
         </div>
-        <div class="p-6 z-30 w-full relative flex items-center justify-center">
+        <div class="p-4 z-30 w-full relative flex items-center justify-center">
           <button
-            class="add-to-cart group/btn relative w-full px-4 py-2.5 text-sm font-bold text-gray-900 bg-white/95 backdrop-blur-sm rounded-xl overflow-hidden transition-all duration-300 hover:shadow-xl hover:bg-white hover:scale-105 active:scale-95 opacity-0 group-hover:opacity-100 flex items-center justify-center gap-2 border border-gray-200"
+            class="add-to-cart group/btn relative px-4 py-2 text-xs font-semibold text-gray-800 bg-white rounded-xl overflow-hidden transition-all duration-300 hover:shadow-xl hover:shadow-[--color-brand-purple]/40 hover:scale-[1.02] active:scale-95 flex items-center justify-center gap-1.5 shadow-lg border-2 border-[--color-brand-purple]/30 backdrop-blur-sm"
             data-photo-id="${photo.id}"
             data-photo-name="${photo.name}"
           >
-            <span class="relative z-10 flex items-center gap-2">
-              <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M12 6v6m0 0v6m0-6h6m-6 0H6"></path>
+            <span class="relative z-10 flex items-center gap-1.5">
+              <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M16 11V7a4 4 0 00-8 0v4M5 9h14l1 12H4L5 9z"></path>
               </svg>
-              <span class="tracking-wide text-xs">Toevoegen</span>
+              <span class="tracking-wide">Bestellen</span>
             </span>
           </button>
         </div>
