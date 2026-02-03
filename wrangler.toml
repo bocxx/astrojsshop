@@ -1,3 +1,4 @@
 name = "astrojsshop"
 pages_build_output_dir = "dist"
 compatibility_date = "2026-01-29"
+compatibility_flags = ["nodejs_compat", "disable_nodejs_process_v2"]
