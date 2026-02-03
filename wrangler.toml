@@ -1,4 +1,5 @@
 name = "foto-bestellen"
+pages_build_output_dir = "dist"
 main = "dist/_worker.js/index.js"
 compatibility_date = "2026-01-29"
 compatibility_flags = ["nodejs_compat", "disable_nodejs_process_v2"]
@@ -18,3 +19,8 @@ database_id = "f4882cc3-7959-4f25-88e4-cd73b4897887"
 binding = "PHOTOS"
 bucket_name = "foto-bucket"
 preview_bucket_name = "foto-bucket-preview"
+
+# KV for session storage
+[[kv_namespaces]]
+binding = "SESSION"
+id = "0295245e44134f0d9d54278244350a46"
