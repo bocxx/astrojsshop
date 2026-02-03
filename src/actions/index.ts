@@ -1,7 +1,7 @@
-import { defineAction, ActionError } from 'astro:actions';
+import { ActionError, defineAction } from 'astro:actions';
+import { Resend } from 'resend';
 import { z } from 'zod';
 import { PhotoDB } from '../lib/db';
-import { Resend } from 'resend';
 
 export const server = {
   register: defineAction({
@@ -117,27 +117,27 @@ export const server = {
       // Send email notification to admin
       const apiKey = context.locals.runtime.env.RESEND_API_KEY;
       const adminEmail = context.locals.runtime.env.ADMIN_EMAIL;
-      
+
       console.log('🔑 RESEND_API_KEY aanwezig:', !!apiKey);
       console.log('📧 ADMIN_EMAIL:', adminEmail);
-      
+
       if (!apiKey) {
         console.error('⚠️ RESEND_API_KEY niet gevonden in environment variables');
         return { success: true, orderNumber, emailSent: false };
       }
-      
+
       if (!adminEmail) {
         console.error('⚠️ ADMIN_EMAIL niet gevonden in environment variables');
         return { success: true, orderNumber, emailSent: false };
       }
-      
+
       const resend = new Resend(apiKey);
-      
+
       // Create HTML list of items
       const itemsListHtml = items
         .map((i) => `<li><strong>${i.photoName}</strong> - Aantal: ${i.quantity}</li>`)
         .join('');
-      
+
       const totalItems = items.reduce((sum, i) => sum + i.quantity, 0);
 
       try {
@@ -146,8 +146,8 @@ export const server = {
         const adminResult = await resend.emails.send({
           from: 'onboarding@resend.dev',
           to: adminEmail,
-        subject: `📸 Nieuwe Foto Bestelling: ${orderNumber}`,
-        html: `
+          subject: `📸 Nieuwe Foto Bestelling: ${orderNumber}`,
+          html: `
           <!DOCTYPE html>
           <html>
             <head>
@@ -175,20 +175,20 @@ export const server = {
                     <p><strong>Datum:</strong> ${new Date().toLocaleString('nl-NL')}</p>
                     <p><strong>Totaal Aantal:</strong> ${totalItems}</p>
                   </div>
-                  
+
                   <div class="order-details">
                     <h2>Klantgegevens</h2>
                     <p><strong>Naam:</strong> ${context.locals.user.name}</p>
                     <p><strong>Email:</strong> ${context.locals.user.email}</p>
                   </div>
-                  
+
                   <div class="order-details">
                     <h2>Bestelde Foto's</h2>
                     <ul class="photo-list">
                       ${itemsListHtml}
                     </ul>
                   </div>
-                  
+
                   <p><strong>Actie Vereist:</strong> Bereid deze foto's voor en stuur ze naar ${context.locals.user.email}</p>
                 </div>
                 <div class="footer">
@@ -206,8 +206,8 @@ export const server = {
         const customerResult = await resend.emails.send({
           from: 'onboarding@resend.dev',
           to: context.locals.user.email,
-        subject: `✅ Bestellingsbevestiging: ${orderNumber}`,
-        html: `
+          subject: `✅ Bestellingsbevestiging: ${orderNumber}`,
+          html: `
           <!DOCTYPE html>
           <html>
             <head>
@@ -231,26 +231,26 @@ export const server = {
                 <div class="content">
                   <p>Hoi <strong>${context.locals.user.name}</strong>,</p>
                   <p>Bedankt voor je bestelling! We hebben je aanvraag ontvangen en zullen deze binnenkort verwerken.</p>
-                  
+
                   <div class="order-summary">
                     <h2>Jouw Bestellingsoverzicht</h2>
                     <p><strong>Bestelnummer:</strong> ${orderNumber}</p>
                     <p><strong>Datum:</strong> ${new Date().toLocaleString('nl-NL')}</p>
                     <p><strong>Totaal Aantal:</strong> ${totalItems}</p>
                   </div>
-                  
+
                   <div class="order-summary">
                     <h2>Bestelde Foto's</h2>
                     <ul class="photo-list">
                       ${itemsListHtml}
                     </ul>
                   </div>
-                  
+
                   <p><strong>Wat Nu?</strong></p>
                   <p>We bereiden je foto's voor en sturen ze naar <strong>${context.locals.user.email}</strong> zodra ze klaar zijn.</p>
-                  
+
                   <p>Als je vragen hebt, aarzel dan niet om te antwoorden op deze email.</p>
-                  
+
                   <p>Met vriendelijke groet,<br>Het Foto Team</p>
                 </div>
                 <div class="footer">
@@ -262,7 +262,7 @@ export const server = {
         `,
         });
         console.log('✅ Klant email verzonden:', customerResult);
-        
+
         return { success: true, orderNumber, emailSent: true };
       } catch (emailError: any) {
         console.error('❌ Email fout:', emailError);
@@ -288,7 +288,7 @@ export const server = {
       }
 
       const db = context.locals.runtime.env.DB;
-      
+
       await db
         .prepare('UPDATE orders SET status = ? WHERE id = ?')
         .bind(newStatus, orderId)
@@ -315,10 +315,10 @@ export const server = {
         context.locals.runtime.env.DB,
         context.locals.runtime.env.PHOTOS
       );
-      
+
       // Get order details
-      const order = await db.getOrderById(orderId);
-      
+      const order = await db.getOrderById(orderId) as any;
+
       if (!order) {
         throw new ActionError({
           code: 'NOT_FOUND',
@@ -327,19 +327,19 @@ export const server = {
       }
 
       const resend = new Resend(context.locals.runtime.env.RESEND_API_KEY);
-      
+
       // Create HTML list of items
       const itemsListHtml = order.items
-        .map((i: any) => `<li><strong>${i.photo_name}</strong> - Quantity: ${i.quantity}</li>`)
+        .map((i: any) => `<li><strong>${i.photo_name}</strong> - Aantal: ${i.quantity}</li>`)
         .join('');
-      
+
       const totalItems = order.items.reduce((sum: number, i: any) => sum + i.quantity, 0);
 
       // Resend admin notification email
       await resend.emails.send({
         from: 'onboarding@resend.dev',
         to: context.locals.runtime.env.ADMIN_EMAIL,
-        subject: `📸 [RESENT] Photo Order: ${order.order_number}`,
+        subject: `📸 [OPNIEUW VERZONDEN] Foto Bestelling: ${order.order_number}`,
         html: `
           <!DOCTYPE html>
           <html>
@@ -360,34 +360,34 @@ export const server = {
             <body>
               <div class="container">
                 <div class="header">
-                  <h1>🎉 Photo Order <span class="resent-badge">RESENT</span></h1>
+                  <h1>🎉 Foto Bestelling <span class="resent-badge">OPNIEUW VERZONDEN</span></h1>
                 </div>
                 <div class="content">
                   <div class="order-details">
-                    <h2>Order Details</h2>
-                    <p><strong>Order Number:</strong> ${order.order_number}</p>
-                    <p><strong>Original Date:</strong> ${new Date(order.created_at * 1000).toLocaleString()}</p>
-                    <p><strong>Resent Date:</strong> ${new Date().toLocaleString()}</p>
-                    <p><strong>Total Items:</strong> ${totalItems}</p>
+                    <h2>Bestellingsinformatie</h2>
+                    <p><strong>Bestelnummer:</strong> ${order.order_number}</p>
+                    <p><strong>Originele Datum:</strong> ${new Date(order.created_at * 1000).toLocaleString('nl-NL')}</p>
+                    <p><strong>Opnieuw Verzonden:</strong> ${new Date().toLocaleString('nl-NL')}</p>
+                    <p><strong>Totaal Aantal:</strong> ${totalItems}</p>
                   </div>
-                  
+
                   <div class="order-details">
-                    <h2>Customer Information</h2>
-                    <p><strong>Name:</strong> ${order.user_name}</p>
+                    <h2>Klantgegevens</h2>
+                    <p><strong>Naam:</strong> ${order.user_name}</p>
                     <p><strong>Email:</strong> ${order.email}</p>
                   </div>
-                  
+
                   <div class="order-details">
-                    <h2>Ordered Photos</h2>
+                    <h2>Bestelde Foto's</h2>
                     <ul class="photo-list">
                       ${itemsListHtml}
                     </ul>
                   </div>
-                  
-                  <p><strong>Action Required:</strong> Please prepare and send these photos to ${order.email}</p>
+
+                  <p><strong>Actie Vereist:</strong> Bereid deze foto's voor en stuur ze naar ${order.email}</p>
                 </div>
                 <div class="footer">
-                  <p>Photo Ordering System - Resent Notification</p>
+                  <p>Foto Bestel Systeem - Opnieuw Verzonden Notificatie</p>
                 </div>
               </div>
             </body>
@@ -399,7 +399,7 @@ export const server = {
       await resend.emails.send({
         from: 'onboarding@resend.dev',
         to: order.email,
-        subject: `✅ [REMINDER] Order Confirmation: ${order.order_number}`,
+        subject: `✅ [HERINNERING] Bestellingsbevestiging: ${order.order_number}`,
         html: `
           <!DOCTYPE html>
           <html>
@@ -420,32 +420,32 @@ export const server = {
             <body>
               <div class="container">
                 <div class="header">
-                  <h1>✅ Order Reminder <span class="reminder-badge">RESENT</span></h1>
+                  <h1>✅ Bestelling Herinnering <span class="reminder-badge">OPNIEUW VERZONDEN</span></h1>
                 </div>
                 <div class="content">
-                  <p>Hi <strong>${order.user_name}</strong>,</p>
-                  <p>This is a reminder about your photo order. We're still processing your request!</p>
-                  
+                  <p>Hoi <strong>${order.user_name}</strong>,</p>
+                  <p>Dit is een herinnering voor je foto bestelling. We zijn je aanvraag nog aan het verwerken!</p>
+
                   <div class="order-summary">
-                    <h2>Your Order Summary</h2>
-                    <p><strong>Order Number:</strong> ${order.order_number}</p>
-                    <p><strong>Original Date:</strong> ${new Date(order.created_at * 1000).toLocaleString()}</p>
-                    <p><strong>Total Items:</strong> ${totalItems}</p>
+                    <h2>Jouw Bestellingsoverzicht</h2>
+                    <p><strong>Bestelnummer:</strong> ${order.order_number}</p>
+                    <p><strong>Originele Datum:</strong> ${new Date(order.created_at * 1000).toLocaleString('nl-NL')}</p>
+                    <p><strong>Totaal Aantal:</strong> ${totalItems}</p>
                   </div>
-                  
+
                   <div class="order-summary">
-                    <h2>Photos Ordered</h2>
+                    <h2>Bestelde Foto's</h2>
                     <ul class="photo-list">
                       ${itemsListHtml}
                     </ul>
                   </div>
-                  
-                  <p>If you have any questions, feel free to reply to this email.</p>
-                  
-                  <p>Best regards,<br>The Photo Team</p>
+
+                  <p>Als je vragen hebt, aarzel dan niet om te antwoorden op deze email.</p>
+
+                  <p>Met vriendelijke groet,<br>Het Foto Team</p>
                 </div>
                 <div class="footer">
-                  <p>This is a resent confirmation email</p>
+                  <p>Dit is een opnieuw verzonden bevestigingsmail</p>
                 </div>
               </div>
             </body>
