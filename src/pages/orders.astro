@@ -1,0 +1,181 @@
+---
+import Layout from '../layouts/Layout.astro';
+import { PhotoDB } from '../lib/db';
+
+// Require authentication
+if (!Astro.locals.user) {
+  return Astro.redirect('/login');
+}
+
+const db = new PhotoDB(
+  Astro.locals.runtime.env.DB,
+  Astro.locals.runtime.env.PHOTOS
+);
+
+const orders = await db.getUserOrders(Astro.locals.user.id);
+
+// Get order details for each order
+const ordersWithDetails = await Promise.all(
+  orders.map(async (order: any) => {
+    const details = await db.getOrderById(order.id);
+    return details;
+  })
+);
+---
+
+<Layout title="Mijn Bestellingen">
+  <h1>Mijn Bestellingen</h1>
+  
+  {ordersWithDetails.length === 0 ? (
+    <div class="empty-state">
+      <p>Je hebt nog geen bestellingen geplaatst.</p>
+      <a href="/" class="btn">Bekijk Foto's</a>
+    </div>
+  ) : (
+    <div class="orders-list">
+      {ordersWithDetails.map((order: any) => (
+        <div class="order-card">
+          <div class="order-header">
+            <div>
+              <h2>Bestelling #{order.order_number}</h2>
+              <p class="order-date">
+                {new Date(order.created_at * 1000).toLocaleDateString('nl-NL', {
+                  year: 'numeric',
+                  month: 'long',
+                  day: 'numeric',
+                  hour: '2-digit',
+                  minute: '2-digit'
+                })}
+              </p>
+            </div>
+            <span class={`status status-${order.status}`}>
+              {order.status === 'pending' ? 'IN AFWACHTING' : order.status === 'completed' ? 'VOLTOOID' : order.status === 'processing' ? 'IN BEHANDELING' : order.status}
+            </span>
+          </div>
+          
+          <div class="order-items">
+            <h3>Foto's ({order.items?.length || 0} artikelen)</h3>
+            <ul>
+              {order.items?.map((item: any) => (
+                <li>
+                  <span class="item-name">{item.photo_name}</span>
+                  <span class="item-quantity">Aantal: {item.quantity}</span>
+                </li>
+              ))}
+            </ul>
+          </div>
+        </div>
+      ))}
+    </div>
+  )}
+  
+  <style>
+    h1 {
+      margin-bottom: 2rem;
+    }
+    
+    .empty-state {
+      text-align: center;
+      padding: 4rem 2rem;
+      background: white;
+      border-radius: 8px;
+      box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+    }
+    
+    .empty-state p {
+      font-size: 1.2rem;
+      color: #6c757d;
+      margin-bottom: 2rem;
+    }
+    
+    .orders-list {
+      display: flex;
+      flex-direction: column;
+      gap: 1.5rem;
+    }
+    
+    .order-card {
+      background: white;
+      border-radius: 8px;
+      padding: 1.5rem;
+      box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+    }
+    
+    .order-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: start;
+      margin-bottom: 1.5rem;
+      padding-bottom: 1rem;
+      border-bottom: 2px solid #e9ecef;
+    }
+    
+    .order-header h2 {
+      margin: 0 0 0.5rem 0;
+      color: #333;
+    }
+    
+    .order-date {
+      color: #6c757d;
+      font-size: 0.9rem;
+      margin: 0;
+    }
+    
+    .status {
+      padding: 0.5rem 1rem;
+      border-radius: 20px;
+      font-size: 0.85rem;
+      font-weight: 600;
+      text-transform: uppercase;
+    }
+    
+    .status-pending {
+      background: #fff3cd;
+      color: #856404;
+    }
+    
+    .status-completed {
+      background: #d4edda;
+      color: #155724;
+    }
+    
+    .status-processing {
+      background: #d1ecf1;
+      color: #0c5460;
+    }
+    
+    .order-items h3 {
+      font-size: 1rem;
+      margin-bottom: 1rem;
+      color: #495057;
+    }
+    
+    .order-items ul {
+      list-style: none;
+      padding: 0;
+      margin: 0;
+    }
+    
+    .order-items li {
+      display: flex;
+      justify-content: space-between;
+      padding: 0.75rem;
+      background: #f8f9fa;
+      border-radius: 4px;
+      margin-bottom: 0.5rem;
+    }
+    
+    .order-items li:last-child {
+      margin-bottom: 0;
+    }
+    
+    .item-name {
+      font-weight: 500;
+    }
+    
+    .item-quantity {
+      color: #6c757d;
+      font-size: 0.9rem;
+    }
+  </style>
+</Layout>

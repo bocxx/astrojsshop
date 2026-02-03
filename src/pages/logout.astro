@@ -1,0 +1,9 @@
+---
+import { actions } from 'astro:actions';
+
+// Call logout action
+Astro.cookies.delete('user_id', { path: '/' });
+
+// Redirect to home
+return Astro.redirect('/');
+---

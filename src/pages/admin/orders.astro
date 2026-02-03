@@ -1,0 +1,432 @@
+---
+import Layout from "../../layouts/Layout.astro";
+
+// Require authentication
+if (!Astro.locals.user) {
+  return Astro.redirect("/login");
+}
+
+// Require admin access
+if (!Astro.locals.user.is_admin) {
+  return Astro.redirect("/");
+}
+
+const db = Astro.locals.runtime.env.DB;
+
+// Get all orders (admin view)
+const { results: allOrders } = await db
+  .prepare(
+    `
+    SELECT
+      o.*,
+      u.name as user_name,
+      u.email as user_email
+    FROM orders o
+    JOIN users u ON o.user_id = u.id
+    ORDER BY o.created_at DESC
+  `,
+  )
+  .all();
+
+// Get items for each order
+const ordersWithItems = await Promise.all(
+  allOrders.map(async (order: any) => {
+    const { results: items } = await db
+      .prepare(`SELECT * FROM order_items WHERE order_id = ?`)
+      .bind(order.id)
+      .all();
+
+    const totalItems = items.reduce(
+      (sum: number, item: any) => sum + item.quantity,
+      0,
+    );
+
+    return {
+      ...order,
+      items,
+      totalItems,
+    };
+  }),
+);
+
+// Calculate stats
+const totalOrders = ordersWithItems.length;
+const pendingOrders = ordersWithItems.filter(
+  (o: any) => o.status === "pending",
+).length;
+const totalPhotosOrdered = ordersWithItems.reduce(
+  (sum: number, o: any) => sum + o.totalItems,
+  0,
+);
+---
+
+<Layout title="Admin - Alle Bestellingen">
+  <div class="admin-header">
+    <h1>📊 Admin Dashboard</h1>
+    <div class="stats">
+      <div class="stat-card">
+        <div class="stat-value">{totalOrders}</div>
+        <div class="stat-label">Totaal Bestellingen</div>
+      </div>
+      <div class="stat-card">
+        <div class="stat-value">{pendingOrders}</div>
+        <div class="stat-label">In Behandeling</div>
+      </div>
+      <div class="stat-card">
+        <div class="stat-value">{totalPhotosOrdered}</div>
+        <div class="stat-label">Foto's Besteld</div>
+      </div>
+    </div>
+  </div>
+
+  {
+    ordersWithItems.length === 0 ? (
+      <div class="empty-state">
+        <p>Nog geen bestellingen.</p>
+      </div>
+    ) : (
+      <div class="orders-table-container">
+        <table class="orders-table">
+          <thead>
+            <tr>
+              <th>Bestelnr.</th>
+              <th>Klant</th>
+              <th>Datum</th>
+              <th>Items</th>
+              <th>Status</th>
+              <th>Acties</th>
+            </tr>
+          </thead>
+          <tbody>
+            {ordersWithItems.map((order: any) => (
+              <tr>
+                <td>
+                  <strong>{order.order_number}</strong>
+                </td>
+                <td>
+                  <div class="customer-info">
+                    <div class="customer-name">{order.user_name}</div>
+                    <div class="customer-email">{order.user_email}</div>
+                  </div>
+                </td>
+                <td>
+                  {new Date(order.created_at * 1000).toLocaleDateString(
+                    "nl-NL",
+                    {
+                      month: "short",
+                      day: "numeric",
+                      year: "numeric",
+                      hour: "2-digit",
+                      minute: "2-digit",
+                    },
+                  )}
+                </td>
+                <td>
+                  <details class="items-details">
+                    <summary>
+                      {order.totalItems} foto
+                      {order.totalItems !== 1 ? "'s" : ""}
+                    </summary>
+                    <ul class="items-list">
+                      {order.items.map((item: any) => (
+                        <li>
+                          {item.photo_name} (×{item.quantity})
+                        </li>
+                      ))}
+                    </ul>
+                  </details>
+                </td>
+                <td>
+                  <span class={`status status-${order.status}`}>
+                    {order.status === "pending"
+                      ? "In behandeling"
+                      : order.status === "completed"
+                        ? "Voltooid"
+                        : order.status}
+                  </span>
+                </td>
+                <td>
+                  <div class="actions">
+                    <button
+                      class="btn-small btn-complete"
+                      data-order-id={order.id}
+                      data-current-status={order.status}
+                    >
+                      {order.status === "pending" ? "Voltooien" : "Heropenen"}
+                    </button>
+                    <button
+                      class="btn-small btn-resend"
+                      data-order-id={order.id}
+                    >
+                      Opnieuw Verzenden
+                    </button>
+                  </div>
+                </td>
+              </tr>
+            ))}
+          </tbody>
+        </table>
+      </div>
+    )
+  }
+
+  <style>
+    .admin-header {
+      margin-bottom: 2rem;
+    }
+
+    .admin-header h1 {
+      margin-bottom: 1.5rem;
+    }
+
+    .stats {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+      gap: 1rem;
+      margin-bottom: 2rem;
+    }
+
+    .stat-card {
+      background: white;
+      padding: 1.5rem;
+      border-radius: 8px;
+      box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+      text-align: center;
+    }
+
+    .stat-value {
+      font-size: 2.5rem;
+      font-weight: 700;
+      color: #0066cc;
+      margin-bottom: 0.5rem;
+    }
+
+    .stat-label {
+      color: #6c757d;
+      font-size: 0.9rem;
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+    }
+
+    .empty-state {
+      text-align: center;
+      padding: 4rem 2rem;
+      background: white;
+      border-radius: 8px;
+      box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+    }
+
+    .orders-table-container {
+      background: white;
+      border-radius: 8px;
+      box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+      overflow-x: auto;
+    }
+
+    .orders-table {
+      width: 100%;
+      border-collapse: collapse;
+    }
+
+    .orders-table thead {
+      background: #f8f9fa;
+      border-bottom: 2px solid #dee2e6;
+    }
+
+    .orders-table th {
+      padding: 1rem;
+      text-align: left;
+      font-weight: 600;
+      color: #495057;
+      font-size: 0.9rem;
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+    }
+
+    .orders-table td {
+      padding: 1rem;
+      border-bottom: 1px solid #e9ecef;
+    }
+
+    .orders-table tbody tr:hover {
+      background: #f8f9fa;
+    }
+
+    .customer-info {
+      display: flex;
+      flex-direction: column;
+      gap: 0.25rem;
+    }
+
+    .customer-name {
+      font-weight: 500;
+    }
+
+    .customer-email {
+      font-size: 0.85rem;
+      color: #6c757d;
+    }
+
+    .items-details summary {
+      cursor: pointer;
+      color: #0066cc;
+      font-weight: 500;
+    }
+
+    .items-details summary:hover {
+      text-decoration: underline;
+    }
+
+    .items-list {
+      margin: 0.5rem 0 0 0;
+      padding-left: 1.5rem;
+      font-size: 0.9rem;
+    }
+
+    .items-list li {
+      margin: 0.25rem 0;
+    }
+
+    .status {
+      display: inline-block;
+      padding: 0.35rem 0.75rem;
+      border-radius: 20px;
+      font-size: 0.75rem;
+      font-weight: 600;
+      text-transform: uppercase;
+    }
+
+    .status-pending {
+      background: #fff3cd;
+      color: #856404;
+    }
+
+    .status-completed {
+      background: #d4edda;
+      color: #155724;
+    }
+
+    .status-processing {
+      background: #d1ecf1;
+      color: #0c5460;
+    }
+
+    .actions {
+      display: flex;
+      gap: 0.5rem;
+    }
+
+    .btn-small {
+      padding: 0.35rem 0.75rem;
+      font-size: 0.85rem;
+      border-radius: 4px;
+      border: none;
+      cursor: pointer;
+      font-weight: 500;
+    }
+
+    .btn-complete {
+      background: #28a745;
+      color: white;
+    }
+
+    .btn-complete:hover {
+      background: #218838;
+    }
+
+    .btn-resend {
+      background: #007bff;
+      color: white;
+    }
+
+    .btn-resend:hover {
+      background: #0056b3;
+    }
+
+    .btn-small:disabled {
+      opacity: 0.6;
+      cursor: not-allowed;
+    }
+  </style>
+
+  <script>
+    import { actions } from "astro:actions";
+
+    // Handle status updates
+    document.querySelectorAll(".btn-complete").forEach((btn) => {
+      btn.addEventListener("click", async (e) => {
+        const target = e.target as HTMLButtonElement;
+        const orderId = target.dataset.orderId;
+        const currentStatus = target.dataset.currentStatus;
+
+        if (!orderId || !currentStatus) return;
+
+        const newStatus = currentStatus === "pending" ? "completed" : "pending";
+
+        // Disable button
+        target.disabled = true;
+        target.textContent = "Updating...";
+
+        try {
+          const { error } = await actions.updateOrderStatus({
+            orderId,
+            newStatus,
+          });
+
+          if (error) {
+            alert("Status bijwerken mislukt: " + error.message);
+            target.disabled = false;
+            target.textContent =
+              currentStatus === "pending" ? "Voltooien" : "Heropenen";
+          } else {
+            // Herlaad de pagina om bijgewerkte status te tonen
+            window.location.reload();
+          }
+        } catch (err) {
+          console.error("Fout bij het bijwerken van status:", err);
+          alert("Status bijwerken mislukt");
+          target.disabled = false;
+          target.textContent =
+            currentStatus === "pending" ? "Voltooien" : "Heropenen";
+        }
+      });
+    });
+
+    // Handle resend emails
+    document.querySelectorAll(".btn-resend").forEach((btn) => {
+      btn.addEventListener("click", async (e) => {
+        const target = e.target as HTMLButtonElement;
+        const orderId = target.dataset.orderId;
+
+        if (!orderId) return;
+
+        if (!confirm("Bestellingsbevestiging opnieuw versturen?")) return;
+
+        // Schakel knop uit
+        target.disabled = true;
+        target.textContent = "Verzenden...";
+
+        try {
+          const { data, error } = await actions.resendOrderEmail({ orderId });
+
+          if (error) {
+            alert("E-mails verzenden mislukt: " + error.message);
+            target.disabled = false;
+            target.textContent = "Opnieuw Verzenden";
+          } else {
+            alert(
+              `E-mails succesvol verzonden voor bestelling ${data.orderNumber}`,
+            );
+            target.disabled = false;
+            target.textContent = "Opnieuw Verzenden";
+          }
+        } catch (err) {
+          console.error("Fout bij het verzenden van e-mails:", err);
+          alert("E-mails verzenden mislukt");
+          target.disabled = false;
+          target.textContent = "Opnieuw Verzenden";
+        }
+      });
+    });
+  </script>
+</Layout>

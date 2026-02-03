@@ -1,0 +1,20 @@
+name = "foto-bestellen"
+main = "dist/_worker.js/index.js"
+compatibility_date = "2026-01-29"
+compatibility_flags = ["nodejs_compat", "disable_nodejs_process_v2"]
+
+# Static assets configuration
+[assets]
+directory = "./dist"
+
+# D1 Database binding
+[[d1_databases]]
+binding = "DB"
+database_name = "foto_db"
+database_id = "f4882cc3-7959-4f25-88e4-cd73b4897887"
+
+# R2 for photo storage
+[[r2_buckets]]
+binding = "PHOTOS"
+bucket_name = "foto-bucket"
+preview_bucket_name = "foto-bucket-preview"

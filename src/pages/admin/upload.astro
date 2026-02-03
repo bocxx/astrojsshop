@@ -1,0 +1,87 @@
+---
+import Layout from '../../layouts/Layout.astro';
+
+// Require authentication
+if (!Astro.locals.user) {
+  return Astro.redirect('/login');
+}
+
+// Require admin access
+if (!Astro.locals.user.is_admin) {
+  return Astro.redirect('/');
+}
+---
+
+<Layout title="Foto's Uploaden">
+  <div class="max-w-4xl mx-auto space-y-8">
+    <div>
+      <h1 class="text-3xl font-medium text-[--color-brand-blue] mb-2">Foto's Uploaden</h1>
+      <p class="text-sm text-[--color-brand-blue]/70">Upload foto's om beschikbaar te maken voor bestellingen</p>
+    </div>
+
+    <div class="bg-white rounded-2xl p-8 shadow-xl border-2 border-[--color-brand-purple]/20">
+      <div class="space-y-6">
+        <div class="border-2 border-dashed border-[--color-brand-purple]/30 rounded-xl p-8 bg-gradient-to-br from-[--color-brand-purple]/5 to-[--color-brand-coral]/5">
+          <div class="text-center">
+            <svg class="w-16 h-16 text-[--color-brand-purple]/40 mx-auto mb-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 16a4 4 0 01-.88-7.903A5 5 0 1115.9 6L16 6a5 5 0 011 9.9M15 13l-3-3m0 0l-3 3m3-3v12"></path>
+            </svg>
+            <h3 class="text-lg font-medium text-[--color-brand-blue] mb-2">Instructies voor Foto Upload</h3>
+            <div class="text-sm text-[--color-brand-blue]/70 space-y-3 max-w-2xl mx-auto text-left">
+              <p><strong>Stap 1:</strong> Plaats je foto's in een lokale map (bijv. <code class="bg-[--color-brand-beige] px-2 py-1 rounded">~/fotos</code>)</p>
+              
+              <p><strong>Stap 2:</strong> Open de terminal en navigeer naar je project map:</p>
+              <pre class="bg-[--color-brand-blue] text-gray-900 p-3 rounded-lg overflow-x-auto">cd /Users/nerd/projects/INSPIRATIE/foto-bestellen</pre>
+              
+              <p><strong>Stap 3:</strong> Upload een foto naar R2 (vervang met je foto naam):</p>
+              <pre class="bg-[--color-brand-blue] text-gray-900 p-3 rounded-lg overflow-x-auto">npx wrangler r2 object put foto-bucket/FOTO_NAAM.jpg --file=/pad/naar/foto.jpg --local</pre>
+              
+              <p><strong>Stap 4:</strong> Voeg de foto toe aan de database:</p>
+              <pre class="bg-[--color-brand-blue] text-gray-900 p-3 rounded-lg overflow-x-auto text-xs">npx wrangler d1 execute foto_db --local --command="INSERT INTO photos (id, name, description, r2_key, available) VALUES ('$(uuidgen)', 'Foto Naam', 'Beschrijving', 'FOTO_NAAM.jpg', 1);"</pre>
+              
+              <div class="mt-4 p-4 bg-gradient-to-r from-[--color-brand-coral]/10 to-[--color-brand-purple]/10 border-l-4 border-[--color-brand-coral] rounded-r-lg">
+                <p class="text-sm font-medium text-[--color-brand-blue]">
+                  💡 <strong>Tip:</strong> Voor productie (zonder <code>--local</code>):
+                </p>
+                <ul class="list-disc list-inside text-xs mt-2 space-y-1">
+                  <li>Verwijder <code>--local</code> uit beide commando's</li>
+                  <li>De foto's worden dan opgeslagen in de productie R2 bucket</li>
+                </ul>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <div class="bg-gradient-to-r from-[--color-brand-purple]/10 to-[--color-brand-coral]/10 p-6 rounded-xl">
+          <h3 class="text-base font-medium text-[--color-brand-blue] mb-3 flex items-center">
+            <svg class="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path>
+            </svg>
+            Waarom geen upload formulier?
+          </h3>
+          <p class="text-sm text-[--color-brand-blue]/70">
+            Cloudflare R2 werkt via hun CLI (command line interface). Dit zorgt voor:
+          </p>
+          <ul class="list-disc list-inside text-sm text-[--color-brand-blue]/70 mt-2 space-y-1">
+            <li>Betere beveiliging en toegangscontrole</li>
+            <li>Geen file size limits</li>
+            <li>Directe upload naar edge network</li>
+            <li>Efficiënter voor grote bestanden</li>
+          </ul>
+        </div>
+
+        <div class="flex items-center justify-between pt-4 border-t border-[--color-brand-purple]/10">
+          <a href="/admin/orders" class="text-sm text-[--color-brand-blue] hover:text-[--color-brand-purple] transition-colors flex items-center">
+            <svg class="w-4 h-4 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 19l-7-7m0 0l7-7m-7 7h18"></path>
+            </svg>
+            Terug naar Dashboard
+          </a>
+          <a href="/" class="px-5 py-2 bg-gradient-to-r from-[--color-brand-blue] to-[--color-brand-purple] text-gray-900 rounded-xl hover:shadow-lg hover:scale-105 transition-all text-sm font-medium">
+            Bekijk Foto's
+          </a>
+        </div>
+      </div>
+    </div>
+  </div>
+</Layout>

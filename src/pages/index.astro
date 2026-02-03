@@ -17,133 +17,186 @@ if (!user) {
 const INITIAL_LOAD = 20;
 const photos = await db.getAvailablePhotos(INITIAL_LOAD, 0);
 const totalPhotos = await db.getAvailablePhotosCount();
+const initialHasMore = totalPhotos > INITIAL_LOAD;
 ---
 
 <Layout title="Fotogalerij">
-  <div class="space-y-8">
-    <!-- Header -->
-    <div class="space-y-3">
-      <div class="flex items-center justify-between">
-        <h1 class="text-3xl font-medium text-[--color-brand-blue]">Beschikbare Foto's</h1>
-        <span class="px-4 py-2 bg-gradient-to-r from-[--color-brand-purple]/10 to-[--color-brand-coral]/10 text-[--color-brand-blue] rounded-xl text-sm font-medium border border-[--color-brand-purple]/20">
-          <span id="photoCount">{totalPhotos}</span> foto's
-        </span>
+  <div class="min-h-screen pb-24">
+    <!-- Modern Sticky Header -->
+    <header class="sticky top-0 z-30 -mx-8 mb-8 backdrop-blur-xl bg-white/80 border-b border-[--color-brand-purple]/10 shadow-sm">
+      <div class="max-w-7xl mx-auto px-8 py-6">
+        <div class="flex items-center justify-between gap-4 flex-wrap">
+
+          <!-- Title Section -->
+          <div class="space-y-1">
+            <h1 class="text-4xl font-bold bg-gradient-to-r from-[--color-brand-blue] via-[--color-brand-purple] to-[--color-brand-coral] bg-clip-text text-transparent">
+              Beschikbare Foto's
+            </h1>
+            <p class="text-sm text-[--color-brand-blue]/60">
+              Selecteer de foto's die je wilt bestellen
+            </p>
+          </div>
+
+          <!-- Photo Counter Badge -->
+          <div class="px-5 py-2.5 text-sm font-semibold text-[--color-brand-blue] bg-gradient-to-br from-[--color-brand-purple]/5 via-[--color-brand-coral]/5 to-[--color-brand-blue]/5 border border-[--color-brand-purple]/20 rounded-2xl shadow-sm backdrop-blur-sm">
+            <span id="photoCount">{totalPhotos}</span> foto's
+          </div>
+
+        </div>
       </div>
-      <p class="text-sm text-[--color-brand-blue]/70">
-        Selecteer de foto's die je wilt bestellen
-      </p>
-    </div>
-    
+    </header>
+
     <!-- Photo Grid -->
-    <div id="photoGrid" class="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-5">
+    <div id="photoGrid" class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-6">
       {photos.map((photo) => (
-        <div class="photo-card group bg-white rounded-2xl overflow-hidden shadow-md hover:shadow-xl transition-all duration-300 border border-[--color-brand-purple]/10">
-          <div class="aspect-square bg-gradient-to-br from-[--color-brand-purple]/15 to-[--color-brand-coral]/15 flex items-center justify-center relative overflow-hidden cursor-pointer photo-preview" data-photo-id={photo.id} data-photo-name={photo.name}>
-            <div class="absolute inset-0 bg-gradient-to-t from-black/5 to-transparent opacity-0 group-hover:opacity-100 transition-opacity"></div>
-            <img 
-              src={`/api/photos/thumb/${photo.id}`} 
+        <article class="photo-card group relative bg-white rounded-3xl shadow-sm border border-[--color-brand-purple]/10 overflow-hidden transition-all duration-500 hover:shadow-2xl hover:border-[--color-brand-purple]/30 hover:-translate-y-2">
+
+          <!-- Photo Preview -->
+          <div
+            class="photo-preview aspect-square relative overflow-hidden cursor-pointer bg-gradient-to-br from-[--color-brand-purple]/10 via-[--color-brand-coral]/10 to-[--color-brand-blue]/10"
+            data-photo-id={photo.id}
+            data-photo-name={photo.name}
+          >
+            <img
+              src={`/api/photos/thumb/${photo.id}`}
               alt={photo.name}
-              class="w-full h-full object-cover transition-transform duration-300 group-hover:scale-110 select-none pointer-events-none"
+              class="w-full h-full object-cover select-none pointer-events-none transition-all duration-700 group-hover:scale-110"
               loading="lazy"
               draggable="false"
               oncontextmenu="return false;"
             />
-            <div class="absolute inset-0 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity bg-black/30">
-              <svg class="w-12 h-12 text-gray-900" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0zM10 7v6m3-3H7"></path>
-              </svg>
+
+            <!-- Hover Overlay -->
+            <div class="absolute inset-0 bg-gradient-to-t from-black/60 via-black/20 to-transparent opacity-0 transition-all duration-500 group-hover:opacity-100"></div>
+
+            <!-- Zoom Icon -->
+            <div class="absolute inset-0 flex items-center justify-center opacity-0 transition-all duration-500 group-hover:opacity-100 transform scale-50 group-hover:scale-100">
+              <div class="p-4 bg-white/90 rounded-full shadow-2xl backdrop-blur-md">
+                <svg class="w-8 h-8 text-[--color-brand-blue]" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0zM10 7v6m3-3H7"></path>
+                </svg>
+              </div>
             </div>
           </div>
-          <div class="p-4 space-y-3">
-            <div>
-              <h3 class="text-sm font-medium text-[--color-brand-blue] truncate">{photo.name}</h3>
-              {photo.description && (
-                <p class="text-xs text-[--color-brand-blue]/60 line-clamp-2 mt-1">{photo.description}</p>
+          <div class="p-5 space-y-3 bg-gradient-to-b from-white to-[--color-brand-beige]/20">
+            <div class="min-h-[3rem]">
+              <h3 class="text-sm font-semibold text-[--color-brand-blue] truncate mb-1">{photo.name}</h3>
+              {photo.description && photo.description !== 'Uploaded via script' && (
+                <p class="text-xs text-[--color-brand-blue]/50 line-clamp-2">{photo.description}</p>
               )}
             </div>
-            <button 
-              class="add-to-cart w-full px-4 py-2.5 bg-gradient-to-r from-[--color-brand-blue] to-[--color-brand-purple] text-gray-900 rounded-xl hover:shadow-lg hover:scale-105 transition-all duration-200 text-sm font-medium flex items-center justify-center space-x-2"
-              data-photo-id={photo.id} 
+            <!-- Add to Cart Button -->
+            <button
+              class="add-to-cart group/btn relative w-full px-4 py-3 text-sm font-semibold text-white bg-gradient-to-r from-[--color-brand-blue] to-[--color-brand-purple] rounded-2xl overflow-hidden transition-all duration-300 hover:shadow-xl hover:shadow-[--color-brand-purple]/30 hover:scale-105 active:scale-95 flex items-center justify-center space-x-2"
+              data-photo-id={photo.id}
               data-photo-name={photo.name}
             >
-              <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6v6m0 0v6m0-6h6m-6 0H6"></path>
-              </svg>
-              <span>Toevoegen</span>
+              <span class="relative z-10 flex items-center space-x-2">
+                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6v6m0 0v6m0-6h6m-6 0H6"></path>
+                </svg>
+                <span>Toevoegen</span>
+              </span>
+              <div class="absolute inset-0 bg-gradient-to-r from-[--color-brand-coral] to-[--color-brand-purple] opacity-0 group-hover/btn:opacity-100 transition-opacity duration-300"></div>
             </button>
+          </article>
+        </div>
+      ))}
+    </div>
+
+    <!-- Loading Skeleton -->
+    <div id="loadingSpinner" class="hidden mt-6 grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-6">
+      {[...Array(5)].map(() => (
+        <div class="animate-pulse">
+          <div class="aspect-square bg-gradient-to-br from-[--color-brand-purple]/10 to-[--color-brand-coral]/10 rounded-3xl"></div>
+          <div class="p-5 space-y-3">
+            <div class="h-4 bg-[--color-brand-purple]/10 rounded-lg w-3/4"></div>
+            <div class="h-10 bg-[--color-brand-purple]/10 rounded-2xl"></div>
           </div>
         </div>
       ))}
     </div>
-    
-    <!-- Loading Spinner -->
-    <div id="loadingSpinner" class="hidden flex justify-center items-center py-8">
-      <svg class="w-10 h-10 text-[--color-brand-purple] animate-spin" fill="none" viewBox="0 0 24 24">
-        <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
-        <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
-      </svg>
-    </div>
-    
-    <!-- End of Content Marker -->
+
     <div id="scrollTrigger" class="h-10"></div>
-    
-    <!-- Cart Toggle Button -->
-    <button id="cartToggle" class="fixed bottom-6 right-6 bg-gradient-to-r from-[--color-brand-blue] to-[--color-brand-purple] text-gray-900 p-4 rounded-full shadow-2xl hover:shadow-xl hover:scale-110 transition-all duration-200 z-40 hidden">
+
+    <!-- Floating Cart Button -->
+    <button
+      id="cartToggle"
+      class="fixed bottom-8 right-8 z-40 hidden p-5 text-white bg-gradient-to-r from-[--color-brand-blue] via-[--color-brand-purple] to-[--color-brand-coral] rounded-full shadow-2xl transition-all duration-300 hover:shadow-[--color-brand-purple]/50 hover:scale-110 active:scale-95 group"
+    >
       <div class="relative">
-        <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+        <svg class="w-7 h-7" fill="none" stroke="currentColor" viewBox="0 0 24 24">
           <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 11V7a4 4 0 00-8 0v4M5 9h14l1 12H4L5 9z"></path>
         </svg>
-        <span id="cartBadge" class="absolute -top-2 -right-2 bg-[--color-brand-coral] text-gray-900 text-xs font-bold rounded-full w-6 h-6 flex items-center justify-center">0</span>
+        <span id="cartBadge" class="absolute -top-2 -right-2 bg-[--color-brand-coral] text-white text-xs font-bold rounded-full min-w-[1.5rem] h-6 flex items-center justify-center px-1.5 shadow-lg animate-pulse">0</span>
       </div>
     </button>
-    
-    <!-- Cart Panel -->
-    <div id="cart" class="fixed bottom-6 right-6 bg-white rounded-2xl shadow-2xl shadow-[--color-brand-purple]/30 p-5 w-96 max-w-[calc(100vw-3rem)] border-2 border-[--color-brand-purple]/20 transition-all duration-300 z-50 hidden">
-        <div class="flex items-center justify-between mb-4">
-          <div class="flex items-center space-x-2">
-            <svg class="w-5 h-5 text-[--color-brand-blue]" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+
+    <!-- Cart Drawer -->
+    <div id="cartBackdrop" class="fixed inset-0 bg-black/40 backdrop-blur-sm transition-all duration-300 z-40 hidden opacity-0"></div>
+    <div id="cart" class="fixed top-0 right-0 h-full w-full max-w-md bg-white/95 backdrop-blur-2xl shadow-2xl transition-all duration-500 z-50 translate-x-full flex flex-col border-l border-[--color-brand-purple]/20">
+      <div class="p-6 border-b border-[--color-brand-purple]/10 bg-gradient-to-r from-[--color-brand-blue]/5 via-[--color-brand-purple]/5 to-[--color-brand-coral]/5">
+        <div class="flex items-center justify-between">
+          <div class="flex items-center space-x-3">
+            <div class="p-2.5 bg-gradient-to-br from-[--color-brand-blue] to-[--color-brand-purple] rounded-2xl shadow-lg">
+              <svg class="w-6 h-6 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 11V7a4 4 0 00-8 0v4M5 9h14l1 12H4L5 9z"></path>
+              </svg>
+            </div>
+            <div>
+              <h2 class="text-xl font-bold text-[--color-brand-blue]">Jouw Bestelling</h2>
+              <p class="text-xs text-[--color-brand-blue]/50"><span id="cartCount">0</span> items</p>
+            </div>
+          </div>
+          <button id="closeCart" class="p-2 text-[--color-brand-blue]/50 hover:text-[--color-brand-blue] hover:bg-[--color-brand-purple]/10 rounded-xl transition-all duration-200">
+            <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path>
+            </svg>
+          </button>
+        </div>
+      </div>
+      <div class="flex-1 overflow-y-auto p-6">
+        <div id="cartItems" class="space-y-3"></div>
+        <div id="emptyCart" class="hidden flex flex-col items-center justify-center py-16 text-center">
+          <div class="w-24 h-24 bg-gradient-to-br from-[--color-brand-purple]/10 to-[--color-brand-coral]/10 rounded-full flex items-center justify-center mb-4">
+            <svg class="w-12 h-12 text-[--color-brand-blue]/30" fill="none" stroke="currentColor" viewBox="0 0 24 24">
               <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 11V7a4 4 0 00-8 0v4M5 9h14l1 12H4L5 9z"></path>
             </svg>
-            <h2 class="text-base font-medium text-[--color-brand-blue]">Jouw Bestelling</h2>
           </div>
-          <div class="flex items-center space-x-2">
-            <span id="cartCount" class="px-2.5 py-1 bg-gradient-to-r from-[--color-brand-coral] to-[--color-brand-purple] text-gray-900 text-xs font-semibold rounded-full shadow-sm">0</span>
-            <button id="closeCart" class="text-[--color-brand-blue]/50 hover:text-[--color-brand-blue] transition-colors">
-              <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path>
-              </svg>
-            </button>
-          </div>
+          <h3 class="text-lg font-semibold text-[--color-brand-blue] mb-2">Winkelwagen is leeg</h3>
+          <p class="text-sm text-[--color-brand-blue]/50">Voeg foto's toe om te bestellen</p>
         </div>
-        <div id="cartItems" class="space-y-2 mb-4 max-h-60 overflow-y-auto"></div>
-        <div class="space-y-2">
-          <a href="/cart" class="block w-full px-5 py-2.5 bg-[--color-brand-blue] text-gray-900 rounded-xl hover:shadow-lg hover:scale-105 transition-all duration-200 font-medium text-center">
-            Bekijk Winkelwagen
-          </a>
-          <button id="placeOrderBtn" class="hidden w-full px-5 py-3 bg-gradient-to-r from-[--color-brand-coral] to-[--color-brand-purple] text-gray-900 rounded-xl hover:shadow-lg hover:scale-105 transition-all duration-200 font-medium flex items-center justify-center space-x-2">
+      </div>
+      <div class="p-6 border-t border-[--color-brand-purple]/10 bg-gradient-to-r from-[--color-brand-blue]/5 via-[--color-brand-purple]/5 to-[--color-brand-coral]/5 space-y-3">
+        <a href="/cart" class="block w-full px-6 py-3.5 bg-gradient-to-r from-[--color-brand-blue] to-[--color-brand-purple] text-white rounded-2xl hover:shadow-xl hover:shadow-[--color-brand-purple]/30 hover:scale-105 active:scale-95 transition-all duration-300 font-semibold text-center">
+          Bekijk Winkelwagen
+        </a>
+        <button id="placeOrderBtn" class="hidden w-full px-6 py-3.5 bg-gradient-to-r from-[--color-brand-coral] to-[--color-brand-purple] text-white rounded-2xl hover:shadow-xl hover:shadow-[--color-brand-coral]/30 hover:scale-105 active:scale-95 transition-all duration-300 font-semibold flex items-center justify-center space-x-2">
           <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path>
           </svg>
-            <span>Bestelling Plaatsen</span>
-          </button>
-        </div>
+          <span>Bestelling Plaatsen</span>
+        </button>
+      </div>
     </div>
-    
-    <!-- Lightbox Modal -->
-    <div id="lightbox" class="fixed inset-0 z-50 hidden items-center justify-center bg-black/90 p-4">
-      <button id="closeLightbox" class="absolute top-4 right-4 text-gray-900 hover:text-[--color-brand-coral] transition-colors">
-        <svg class="w-10 h-10" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+
+    <!-- Enhanced Lightbox -->
+    <div id="lightbox" class="fixed inset-0 z-[60] hidden opacity-0 items-center justify-center p-4 bg-black/90 backdrop-blur-md transition-all duration-300">
+      <button id="closeLightbox" class="absolute top-6 right-6 text-white/80 hover:text-white bg-white/10 hover:bg-white/20 backdrop-blur-md p-3 rounded-2xl transition-all duration-300 hover:scale-110 z-10">
+        <svg class="w-7 h-7" fill="none" stroke="currentColor" viewBox="0 0 24 24">
           <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path>
         </svg>
       </button>
-      <div class="max-w-7xl max-h-[90vh] w-full flex flex-col items-center">
-        <img id="lightboxImage" src="" alt="" class="max-w-full max-h-[80vh] object-contain rounded-lg shadow-2xl select-none" draggable="false" oncontextmenu="return false;" />
-        <div class="mt-6 text-center">
-          <h2 id="lightboxTitle" class="text-2xl font-medium text-gray-900 mb-3"></h2>
-          <button 
-            id="lightboxAddToCart"
-            class="px-6 py-3 bg-gradient-to-r from-[--color-brand-coral] to-[--color-brand-purple] text-gray-900 rounded-xl hover:shadow-lg hover:scale-105 transition-all duration-200 font-medium flex items-center justify-center space-x-2 mx-auto"
-          >
+      <div class="absolute top-6 left-6 text-white/60 text-sm bg-white/10 backdrop-blur-md px-4 py-2 rounded-2xl">
+        <span>Druk <kbd class="px-2 py-0.5 bg-white/20 rounded">ESC</kbd> om te sluiten</span>
+      </div>
+      <div class="max-w-7xl max-h-[90vh] w-full flex flex-col items-center space-y-6">
+        <div class="relative rounded-3xl overflow-hidden shadow-2xl bg-white/5 backdrop-blur-sm border border-white/10 p-2">
+          <img id="lightboxImage" src="" alt="" class="max-w-full max-h-[70vh] object-contain rounded-2xl select-none" draggable="false" oncontextmenu="return false;" />
+        </div>
+        <div class="text-center space-y-4 bg-white/10 backdrop-blur-xl rounded-3xl p-6 border border-white/20 max-w-2xl w-full">
+          <h2 id="lightboxTitle" class="text-2xl font-bold text-white"></h2>
+          <button id="lightboxAddToCart" class="px-8 py-3.5 bg-gradient-to-r from-[--color-brand-coral] to-[--color-brand-purple] text-white rounded-2xl hover:shadow-2xl hover:shadow-[--color-brand-coral]/50 hover:scale-105 active:scale-95 transition-all duration-300 font-semibold flex items-center justify-center space-x-2 mx-auto">
             <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
               <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6v6m0 0v6m0-6h6m-6 0H6"></path>
             </svg>
@@ -152,51 +205,110 @@ const totalPhotos = await db.getAvailablePhotosCount();
         </div>
       </div>
     </div>
+
+    <!-- Toast Container -->
+    <div id="toastContainer" class="fixed top-6 right-6 z-[70] space-y-3 pointer-events-none"></div>
   </div>
-  
+
+  <script is:inline define:vars={{ initialHasMore, totalPhotos, initialPhotoCount: photos.length }}>
+    window.__INITIAL_STATE__ = {
+      hasMorePhotos: initialHasMore,
+      totalPhotos: totalPhotos,
+      initialPhotoCount: initialPhotoCount
+    };
+  </script>
+
   <script>
     import { actions } from 'astro:actions';
-    
+
+    // Type declaration for window
+    declare global {
+      interface Window {
+        __INITIAL_STATE__: {
+          hasMorePhotos: boolean;
+          totalPhotos: number;
+          initialPhotoCount: number;
+        };
+      }
+    }
+
     // Prevent image downloads and right-click
     document.addEventListener('DOMContentLoaded', () => {
-      // Disable right-click on all images
       document.querySelectorAll('img').forEach((img) => {
         img.addEventListener('contextmenu', (e) => e.preventDefault());
         img.addEventListener('dragstart', (e) => e.preventDefault());
       });
-      
-      // Disable common screenshot shortcuts
+
       document.addEventListener('keydown', (e) => {
-        // Prevent Cmd+Shift+3/4/5 (Mac screenshots)
         if (e.metaKey && e.shiftKey && ['3', '4', '5'].includes(e.key)) {
           e.preventDefault();
         }
-        // Prevent Print Screen
         if (e.key === 'PrintScreen') {
           e.preventDefault();
         }
       });
-      
-      // Add watermark overlay to lightbox image
-      const lightboxImage = document.getElementById('lightboxImage');
-      if (lightboxImage) {
-        lightboxImage.addEventListener('contextmenu', (e) => {
-          e.preventDefault();
-          return false;
-        });
-      }
     });
-    
+
     const cart = new Map<string, { id: string; name: string; quantity: number }>();
     let currentLightboxPhoto: { id: string; name: string } | null = null;
     let cartVisible = false;
-    
+
     // Infinite scroll state
-    let currentOffset = 20; // We already loaded 20 photos
+    let currentOffset = 20;
     let isLoading = false;
-    let hasMorePhotos = true;
+    let hasMorePhotos = window.__INITIAL_STATE__.hasMorePhotos;
     const PHOTOS_PER_PAGE = 20;
-    
+
+    // Debug: Log initial state
+    console.log('Initial state:', {
+      totalPhotos: window.__INITIAL_STATE__.totalPhotos,
+      initialLoad: window.__INITIAL_STATE__.initialPhotoCount,
+      currentOffset,
+      hasMorePhotos,
+      PHOTOS_PER_PAGE
+    });
+
+    // Modern Toast Notification System
+    function showToast(message: string, type: 'success' | 'error' | 'info' = 'success', duration = 4000) {
+      const container = document.getElementById('toastContainer');
+      if (!container) return;
+
+      const toast = document.createElement('div');
+      toast.className = `pointer-events-auto transform translate-x-96 transition-all duration-500 ease-out`;
+
+      const colors = {
+        success: 'from-green-500 to-emerald-500',
+        error: 'from-red-500 to-rose-500',
+        info: 'from-[--color-brand-blue] to-[--color-brand-purple]'
+      };
+
+      const icons = {
+        success: '<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"></path>',
+        error: '<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 14l2-2m0 0l2-2m-2 2l-2-2m2 2l2 2m7-2a9 9 0 11-18 0 9 9 0 0118 0z"></path>',
+        info: '<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path>'
+      };
+
+      toast.innerHTML = `
+        <div class="bg-gradient-to-r ${colors[type]} text-white px-6 py-4 rounded-2xl shadow-2xl backdrop-blur-xl border border-white/20 flex items-center space-x-3 min-w-[300px]">
+          <svg class="w-6 h-6 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            ${icons[type]}
+          </svg>
+          <span class="font-medium">${message}</span>
+        </div>
+      `;
+
+      container.appendChild(toast);
+
+      setTimeout(() => {
+        toast.classList.remove('translate-x-96');
+      }, 10);
+
+      setTimeout(() => {
+        toast.classList.add('translate-x-96', 'opacity-0');
+        setTimeout(() => toast.remove(), 500);
+      }, duration);
+    }
+
     // Load cart from localStorage
     function loadCart() {
       const saved = localStorage.getItem('photo-cart');
@@ -209,165 +321,193 @@ const totalPhotos = await db.getAvailablePhotosCount();
         }
       }
     }
-    
+
     // Save cart to localStorage
     function saveCart() {
       localStorage.setItem('photo-cart', JSON.stringify(Array.from(cart.values())));
     }
-    
+
     function showCart() {
       const cartEl = document.getElementById('cart');
+      const cartBackdrop = document.getElementById('cartBackdrop');
       const cartToggle = document.getElementById('cartToggle');
-      if (cartEl && cartToggle) {
-        cartEl.classList.remove('hidden');
+
+      if (cartEl && cartBackdrop && cartToggle) {
+        cartBackdrop.classList.remove('hidden');
+        setTimeout(() => cartBackdrop.classList.add('opacity-100'), 10);
+        cartEl.classList.remove('translate-x-full');
         cartToggle.classList.add('hidden');
         cartVisible = true;
+        document.body.style.overflow = 'hidden';
       }
     }
-    
+
     function hideCart() {
       const cartEl = document.getElementById('cart');
+      const cartBackdrop = document.getElementById('cartBackdrop');
       const cartToggle = document.getElementById('cartToggle');
-      if (cartEl && cartToggle) {
-        cartEl.classList.add('hidden');
+
+      if (cartEl && cartBackdrop && cartToggle) {
+        cartEl.classList.add('translate-x-full');
+        cartBackdrop.classList.remove('opacity-100');
+        setTimeout(() => cartBackdrop.classList.add('hidden'), 300);
+
         if (cart.size > 0) {
           cartToggle.classList.remove('hidden');
         }
         cartVisible = false;
+        document.body.style.overflow = 'auto';
       }
     }
-    
+
     function updateCart() {
       const cartItems = document.getElementById('cartItems');
+      const emptyCart = document.getElementById('emptyCart');
       const placeOrderBtn = document.getElementById('placeOrderBtn');
       const cartCount = document.getElementById('cartCount');
       const cartBadge = document.getElementById('cartBadge');
       const cartToggle = document.getElementById('cartToggle');
-      
-      if (!cartItems || !placeOrderBtn || !cartCount || !cartBadge) return;
-      
+
+      if (!cartItems || !placeOrderBtn || !cartCount || !cartBadge || !emptyCart) return;
+
       const totalItems = Array.from(cart.values()).reduce((sum, item) => sum + item.quantity, 0);
       cartCount.textContent = totalItems.toString();
       cartBadge.textContent = totalItems.toString();
-      
-      // Show/hide toggle button based on cart content
+
+      // Show/hide toggle button and empty state
       if (cart.size === 0) {
         cartToggle?.classList.add('hidden');
-        cartItems.innerHTML = '<p class="text-[--color-brand-blue]/50 text-center py-6 text-sm">Nog geen items</p>';
+        cartItems.classList.add('hidden');
+        emptyCart.classList.remove('hidden');
         placeOrderBtn.classList.add('hidden');
         return;
-      } else if (!cartVisible) {
-        cartToggle?.classList.remove('hidden');
+      } else {
+        cartItems.classList.remove('hidden');
+        emptyCart.classList.add('hidden');
+        if (!cartVisible) {
+          cartToggle?.classList.remove('hidden');
+        }
       }
-      
+
       cartItems.innerHTML = '';
       cart.forEach((item) => {
         const div = document.createElement('div');
-        div.className = 'flex items-center justify-between p-3 bg-gradient-to-r from-[--color-brand-beige]/50 to-[--color-brand-purple]/5 rounded-xl border border-[--color-brand-purple]/10';
+        div.className = 'group bg-gradient-to-br from-white to-[--color-brand-beige]/30 rounded-2xl border border-[--color-brand-purple]/10 hover:border-[--color-brand-purple]/30 transition-all duration-300 overflow-hidden';
         div.innerHTML = `
-          <div class="flex-1">
-            <span class="text-sm text-[--color-brand-blue] font-medium">${item.name}</span>
-            <span class="text-xs text-[--color-brand-blue]/50 ml-2">×${item.quantity}</span>
+          <div class="flex items-center justify-between p-4">
+            <div class="flex-1 min-w-0">
+              <h4 class="text-sm font-semibold text-[--color-brand-blue] truncate">${item.name}</h4>
+              <p class="text-xs text-[--color-brand-blue]/50 mt-0.5">Aantal: <span class="font-semibold text-[--color-brand-coral]">×${item.quantity}</span></p>
+            </div>
+            <button class="remove-btn ml-3 p-2 text-[--color-brand-coral]/60 hover:text-[--color-brand-coral] hover:bg-[--color-brand-coral]/10 rounded-xl transition-all duration-200 hover:scale-110" data-photo-id="${item.id}">
+              <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"></path>
+              </svg>
+            </button>
           </div>
-          <button class="remove-btn text-[--color-brand-coral] hover:text-[--color-brand-purple] transition-colors" data-photo-id="${item.id}">
-            <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path>
-            </svg>
-          </button>
         `;
         cartItems.appendChild(div);
       });
-      
+
       placeOrderBtn.classList.remove('hidden');
-      
-      // Save cart to localStorage
       saveCart();
     }
-    
+
     // Load cart on page load
     loadCart();
     updateCart();
-    
+
     // Cart toggle handlers
     document.getElementById('cartToggle')?.addEventListener('click', showCart);
     document.getElementById('closeCart')?.addEventListener('click', hideCart);
-    
-    document.querySelectorAll('.add-to-cart').forEach((btn) => {
-      btn.addEventListener('click', (e) => {
+    document.getElementById('cartBackdrop')?.addEventListener('click', hideCart);
+
+    // Add to cart functionality
+    function attachAddToCartListener(button: Element) {
+      button.addEventListener('click', (e) => {
         const target = e.target as HTMLElement;
-        const button = target.closest('button') as HTMLButtonElement;
-        const photoId = button.dataset.photoId!;
-        const photoName = button.dataset.photoName!;
-        
+        const btn = target.closest('button') as HTMLButtonElement;
+        const photoId = btn.dataset.photoId!;
+        const photoName = btn.dataset.photoName!;
+
         const existing = cart.get(photoId);
         if (existing) {
           existing.quantity++;
         } else {
           cart.set(photoId, { id: photoId, name: photoName, quantity: 1 });
         }
-        
-        // Feedback
-        button.innerHTML = `
-          <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path>
-          </svg>
-          <span>Toegevoegd!</span>
-        `;
-        button.style.background = 'linear-gradient(to right, var(--color-brand-coral), var(--color-brand-purple))';
-        
-        setTimeout(() => {
-          button.innerHTML = `
+
+        // Button feedback animation
+        const originalHTML = btn.innerHTML;
+        btn.innerHTML = `
+          <span class="relative z-10 flex items-center space-x-2">
             <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6v6m0 0v6m0-6h6m-6 0H6"></path>
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path>
             </svg>
-            <span>Toevoegen</span>
-          `;
-          button.style.background = 'linear-gradient(to right, var(--color-brand-blue), var(--color-brand-purple))';
-        }, 1200);
-        
+            <span>Toegevoegd!</span>
+          </span>
+        `;
+        btn.style.background = 'linear-gradient(to right, var(--color-brand-coral), var(--color-brand-purple))';
+
+        setTimeout(() => {
+          btn.innerHTML = originalHTML;
+          btn.style.background = '';
+        }, 1500);
+
         updateCart();
+        showToast(`${photoName} toegevoegd aan winkelwagen`, 'success');
         showCart();
-        
-        // Auto-hide cart after 3 seconds
+
+        // Auto-hide cart after 4 seconds
         setTimeout(() => {
           if (cartVisible) {
             hideCart();
           }
-        }, 3000);
+        }, 4000);
       });
-    });
-    
+    }
+
+    // Attach listeners to initial cart buttons
+    document.querySelectorAll('.add-to-cart').forEach(attachAddToCartListener);
+
+    // Remove from cart
     document.getElementById('cartItems')?.addEventListener('click', (e) => {
       const target = e.target as HTMLElement;
       const button = target.closest('.remove-btn') as HTMLButtonElement;
       if (button) {
         const photoId = button.dataset.photoId!;
-        cart.delete(photoId);
-        updateCart();
+        const item = cart.get(photoId);
+        if (item) {
+          showToast(`${item.name} verwijderd uit winkelwagen`, 'info');
+          cart.delete(photoId);
+          updateCart();
+        }
       }
     });
-    
+
+    // Place order
     document.getElementById('placeOrderBtn')?.addEventListener('click', async () => {
       const items = Array.from(cart.values()).map(item => ({
         photoId: item.id,
         photoName: item.name,
         quantity: item.quantity,
       }));
-      
+
       const btn = document.getElementById('placeOrderBtn') as HTMLButtonElement;
       btn.disabled = true;
       btn.innerHTML = `
         <svg class="w-5 h-5 animate-spin" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15"></path>
+          <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
+          <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
         </svg>
         <span>Bezig met bestellen...</span>
       `;
-      
+
       try {
         const { data, error } = await actions.placeOrder({ items });
-        
+
         if (error) {
-          alert('Fout: ' + error.message);
+          showToast('Fout: ' + error.message, 'error');
           btn.disabled = false;
           btn.innerHTML = `
             <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -377,33 +517,13 @@ const totalPhotos = await db.getAvailablePhotosCount();
           `;
           return;
         }
-        
+
         cart.clear();
         updateCart();
-        
-        // Success notification
-        const toast = document.createElement('div');
-        toast.className = 'fixed top-8 right-8 bg-gradient-to-r from-[--color-brand-coral] to-[--color-brand-purple] text-gray-900 px-6 py-4 rounded-2xl shadow-2xl z-50 animate-bounce';
-        toast.innerHTML = `
-          <div class="flex items-center space-x-3">
-            <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"></path>
-            </svg>
-            <div>
-              <p class="font-semibold">Bestelling Geplaatst!</p>
-              <p class="text-sm opacity-90">Bestelnummer: ${data.orderNumber}</p>
-            </div>
-          </div>
-        `;
-        document.body.appendChild(toast);
-        
-        setTimeout(() => {
-          toast.classList.remove('animate-bounce');
-          toast.classList.add('animate-pulse');
-        }, 500);
-        
-        setTimeout(() => toast.remove(), 5000);
-        
+        hideCart();
+
+        showToast(`Bestelling geplaatst! Bestelnummer: ${data.orderNumber}`, 'success', 6000);
+
         btn.disabled = false;
         btn.innerHTML = `
           <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -412,7 +532,7 @@ const totalPhotos = await db.getAvailablePhotosCount();
           <span>Bestelling Plaatsen</span>
         `;
       } catch (err) {
-        alert('Fout bij het plaatsen van de bestelling');
+        showToast('Fout bij het plaatsen van de bestelling', 'error');
         console.error(err);
         btn.disabled = false;
         btn.innerHTML = `
@@ -423,73 +543,77 @@ const totalPhotos = await db.getAvailablePhotosCount();
         `;
       }
     });
-    
+
     // Lightbox functionality
     const lightbox = document.getElementById('lightbox');
     const lightboxImage = document.getElementById('lightboxImage') as HTMLImageElement;
     const lightboxTitle = document.getElementById('lightboxTitle');
     const lightboxAddToCart = document.getElementById('lightboxAddToCart');
     const closeLightbox = document.getElementById('closeLightbox');
-    
-    // Open lightbox when clicking on photo
-    document.querySelectorAll('.photo-preview').forEach((preview) => {
+
+    function attachLightboxListener(preview: Element) {
       preview.addEventListener('click', (e) => {
         const target = e.currentTarget as HTMLElement;
         const photoId = target.dataset.photoId!;
         const photoName = target.dataset.photoName!;
-        
+
         currentLightboxPhoto = { id: photoId, name: photoName };
-        
+
         if (lightboxImage && lightboxTitle && lightbox) {
+          console.log('Opening lightbox for:', photoName, photoId);
           lightboxImage.src = `/api/photos/${photoId}`;
           lightboxImage.alt = photoName;
           lightboxTitle.textContent = photoName;
-          lightbox.classList.remove('hidden');
+          lightbox.classList.remove('hidden', 'opacity-0');
           lightbox.classList.add('flex');
+          // Force reflow before adding opacity
+          void lightbox.offsetHeight;
+          lightbox.classList.add('opacity-100');
           document.body.style.overflow = 'hidden';
         }
       });
-    });
-    
-    // Close lightbox
+    }
+
+    document.querySelectorAll('.photo-preview').forEach(attachLightboxListener);
+
     const closeLightboxHandler = () => {
       if (lightbox) {
-        lightbox.classList.add('hidden');
-        lightbox.classList.remove('flex');
+        lightbox.classList.remove('opacity-100');
+        lightbox.classList.add('opacity-0');
+        setTimeout(() => {
+          lightbox.classList.add('hidden');
+          lightbox.classList.remove('flex', 'opacity-0');
+        }, 300);
         document.body.style.overflow = 'auto';
         currentLightboxPhoto = null;
       }
     };
-    
+
     closeLightbox?.addEventListener('click', closeLightboxHandler);
-    
-    // Close lightbox on escape key
+
     document.addEventListener('keydown', (e) => {
       if (e.key === 'Escape') {
         closeLightboxHandler();
       }
     });
-    
-    // Close lightbox when clicking outside the image
+
     lightbox?.addEventListener('click', (e) => {
       if (e.target === lightbox) {
         closeLightboxHandler();
       }
     });
-    
-    // Add to cart from lightbox
+
     lightboxAddToCart?.addEventListener('click', () => {
       if (currentLightboxPhoto) {
         const { id, name } = currentLightboxPhoto;
-        
+
         const existing = cart.get(id);
         if (existing) {
           existing.quantity++;
         } else {
           cart.set(id, { id, name, quantity: 1 });
         }
-        
-        // Show feedback
+
         const btn = lightboxAddToCart as HTMLButtonElement;
         const originalHTML = btn.innerHTML;
         btn.innerHTML = `
@@ -498,144 +622,104 @@ const totalPhotos = await db.getAvailablePhotosCount();
           </svg>
           <span>Toegevoegd!</span>
         `;
-        
+
         setTimeout(() => {
           btn.innerHTML = originalHTML;
         }, 1500);
-        
+
         updateCart();
+        showToast(`${name} toegevoegd aan winkelwagen`, 'success');
       }
     });
-    
-    // ========== Infinite Scroll ==========
-    
+
+    // Infinite scroll
     function createPhotoCard(photo: any) {
       const card = document.createElement('div');
-      card.className = 'photo-card group bg-white rounded-2xl overflow-hidden shadow-md hover:shadow-xl transition-all duration-300 border border-[--color-brand-purple]/10';
-      
+      card.className = 'photo-card group relative bg-white rounded-3xl overflow-hidden shadow-sm hover:shadow-2xl transition-all duration-500 border border-[--color-brand-purple]/10 hover:border-[--color-brand-purple]/30 hover:-translate-y-2';
+
       card.innerHTML = `
-        <div class="aspect-square bg-gradient-to-br from-[--color-brand-purple]/15 to-[--color-brand-coral]/15 flex items-center justify-center relative overflow-hidden cursor-pointer photo-preview" data-photo-id="${photo.id}" data-photo-name="${photo.name}">
-          <div class="absolute inset-0 bg-gradient-to-t from-black/5 to-transparent opacity-0 group-hover:opacity-100 transition-opacity"></div>
-          <img 
-            src="/api/photos/thumb/${photo.id}" 
+        <div class="aspect-square bg-gradient-to-br from-[--color-brand-purple]/10 via-[--color-brand-coral]/10 to-[--color-brand-blue]/10 relative overflow-hidden cursor-pointer photo-preview" data-photo-id="${photo.id}" data-photo-name="${photo.name}">
+          <img
+            src="/api/photos/thumb/${photo.id}"
             alt="${photo.name}"
-            class="w-full h-full object-cover transition-transform duration-300 group-hover:scale-110 select-none pointer-events-none"
+            class="w-full h-full object-cover transition-all duration-700 group-hover:scale-110 select-none pointer-events-none"
             loading="lazy"
             draggable="false"
             oncontextmenu="return false;"
           />
-          <div class="absolute inset-0 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity bg-black/30">
-            <svg class="w-12 h-12 text-gray-900" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0zM10 7v6m3-3H7"></path>
-            </svg>
+          <div class="absolute inset-0 bg-gradient-to-t from-black/60 via-black/20 to-transparent opacity-0 group-hover:opacity-100 transition-all duration-500"></div>
+          <div class="absolute inset-0 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-all duration-500 transform scale-50 group-hover:scale-100">
+            <div class="bg-white/90 backdrop-blur-md rounded-full p-4 shadow-2xl">
+              <svg class="w-8 h-8 text-[--color-brand-blue]" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0zM10 7v6m3-3H7"></path>
+              </svg>
+            </div>
           </div>
         </div>
-        <div class="p-4 space-y-3">
-          <div>
-            <h3 class="text-sm font-medium text-[--color-brand-blue] truncate">${photo.name}</h3>
-            ${photo.description ? `<p class="text-xs text-[--color-brand-blue]/60 line-clamp-2 mt-1">${photo.description}</p>` : ''}
+        <div class="p-5 space-y-3 bg-gradient-to-b from-white to-[--color-brand-beige]/20">
+          <div class="min-h-[3rem]">
+            <h3 class="text-sm font-semibold text-[--color-brand-blue] truncate mb-1">${photo.name}</h3>
+            ${photo.description && photo.description !== 'Uploaded via script' ? `<p class="text-xs text-[--color-brand-blue]/50 line-clamp-2">${photo.description}</p>` : ''}
           </div>
-          <button 
-            class="add-to-cart w-full px-4 py-2.5 bg-gradient-to-r from-[--color-brand-blue] to-[--color-brand-purple] text-gray-900 rounded-xl hover:shadow-lg hover:scale-105 transition-all duration-200 text-sm font-medium flex items-center justify-center space-x-2"
-            data-photo-id="${photo.id}" 
+          <button
+            class="add-to-cart w-full px-4 py-3 bg-gradient-to-r from-[--color-brand-blue] to-[--color-brand-purple] text-white rounded-2xl hover:shadow-xl hover:shadow-[--color-brand-purple]/30 hover:scale-105 active:scale-95 transition-all duration-300 text-sm font-semibold flex items-center justify-center space-x-2 relative overflow-hidden group/btn"
+            data-photo-id="${photo.id}"
             data-photo-name="${photo.name}"
           >
-            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6v6m0 0v6m0-6h6m-6 0H6"></path>
-            </svg>
-            <span>Toevoegen</span>
+            <span class="relative z-10 flex items-center space-x-2">
+              <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6v6m0 0v6m0-6h6m-6 0H6"></path>
+              </svg>
+              <span>Toevoegen</span>
+            </span>
+            <div class="absolute inset-0 bg-gradient-to-r from-[--color-brand-coral] to-[--color-brand-purple] opacity-0 group-hover/btn:opacity-100 transition-opacity duration-300"></div>
           </button>
         </div>
       `;
-      
-      // Attach event listeners
+
       const addToCartBtn = card.querySelector('.add-to-cart');
-      addToCartBtn?.addEventListener('click', (e) => {
-        const target = e.target as HTMLElement;
-        const button = target.closest('button') as HTMLButtonElement;
-        const photoId = button.dataset.photoId!;
-        const photoName = button.dataset.photoName!;
-        
-        const existing = cart.get(photoId);
-        if (existing) {
-          existing.quantity++;
-        } else {
-          cart.set(photoId, { id: photoId, name: photoName, quantity: 1 });
-        }
-        
-        button.innerHTML = `
-          <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path>
-          </svg>
-          <span>Toegevoegd!</span>
-        `;
-        button.style.background = 'linear-gradient(to right, var(--color-brand-coral), var(--color-brand-purple))';
-        
-        setTimeout(() => {
-          button.innerHTML = `
-            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6v6m0 0v6m0-6h6m-6 0H6"></path>
-            </svg>
-            <span>Toevoegen</span>
-          `;
-          button.style.background = 'linear-gradient(to right, var(--color-brand-blue), var(--color-brand-purple))';
-        }, 1200);
-        
-        updateCart();
-        showCart();
-        
-        setTimeout(() => {
-          if (cartVisible) {
-            hideCart();
-          }
-        }, 3000);
-      });
-      
-      // Attach lightbox listener
+      if (addToCartBtn) {
+        attachAddToCartListener(addToCartBtn);
+      }
+
       const preview = card.querySelector('.photo-preview');
-      preview?.addEventListener('click', (e) => {
-        const target = e.currentTarget as HTMLElement;
-        const photoId = target.dataset.photoId!;
-        const photoName = target.dataset.photoName!;
-        
-        currentLightboxPhoto = { id: photoId, name: photoName };
-        
-        if (lightboxImage && lightboxTitle && lightbox) {
-          lightboxImage.src = `/api/photos/${photoId}`;
-          lightboxImage.alt = photoName;
-          lightboxTitle.textContent = photoName;
-          lightbox.classList.remove('hidden');
-          lightbox.classList.add('flex');
-          document.body.style.overflow = 'hidden';
-        }
-      });
-      
+      if (preview) {
+        attachLightboxListener(preview);
+      }
+
       return card;
     }
-    
+
     async function loadMorePhotos() {
-      if (isLoading || !hasMorePhotos) return;
-      
+      if (isLoading || !hasMorePhotos) {
+        console.log('Skipping load:', { isLoading, hasMorePhotos });
+        return;
+      }
+
+      console.log('Loading more photos from offset:', currentOffset);
       isLoading = true;
       const spinner = document.getElementById('loadingSpinner');
       spinner?.classList.remove('hidden');
-      
+
       try {
         const response = await fetch(`/api/photos.json?limit=${PHOTOS_PER_PAGE}&offset=${currentOffset}`);
         const data = await response.json();
-        
+        console.log('Received photos:', data);
+
         if (data.photos && data.photos.length > 0) {
           const grid = document.getElementById('photoGrid');
-          
+
           data.photos.forEach((photo: any) => {
             const card = createPhotoCard(photo);
             grid?.appendChild(card);
           });
-          
+
           currentOffset += data.photos.length;
           hasMorePhotos = data.hasMore;
+          console.log('Updated state:', { currentOffset, hasMorePhotos });
         } else {
           hasMorePhotos = false;
+          console.log('No more photos available');
         }
       } catch (error) {
         console.error('Failed to load more photos:', error);
@@ -644,14 +728,20 @@ const totalPhotos = await db.getAvailablePhotosCount();
         spinner?.classList.add('hidden');
       }
     }
-    
-    // Set up intersection observer for infinite scroll
+
     const scrollTrigger = document.getElementById('scrollTrigger');
     if (scrollTrigger) {
+      console.log('Setting up intersection observer for infinite scroll');
       const observer = new IntersectionObserver(
         (entries) => {
           entries.forEach((entry) => {
+            console.log('Intersection observer triggered:', {
+              isIntersecting: entry.isIntersecting,
+              isLoading,
+              hasMorePhotos
+            });
             if (entry.isIntersecting && !isLoading && hasMorePhotos) {
+              console.log('Triggering loadMorePhotos');
               loadMorePhotos();
             }
           });
@@ -662,8 +752,11 @@ const totalPhotos = await db.getAvailablePhotosCount();
           threshold: 0.1
         }
       );
-      
+
       observer.observe(scrollTrigger);
+      console.log('Observer attached to scrollTrigger');
+    } else {
+      console.error('scrollTrigger element not found!');
     }
   </script>
 </Layout>
