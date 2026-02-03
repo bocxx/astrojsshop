@@ -1,5 +1,5 @@
 ---
-import '../styles/global.css';
+import "../styles/global.css";
 
 interface Props {
   title: string;
@@ -25,7 +25,7 @@ const user = Astro.locals.user;
         -ms-user-select: none;
         pointer-events: auto;
       }
-      
+
       /* Disable text selection on photo cards */
       .photo-card img {
         -webkit-user-drag: none;
@@ -34,10 +34,10 @@ const user = Astro.locals.user;
         -o-user-drag: none;
         user-drag: none;
       }
-      
+
       /* Make it harder to inspect element on images */
       .photo-preview::before {
-        content: '';
+        content: "";
         position: absolute;
         top: 0;
         left: 0;
@@ -46,7 +46,7 @@ const user = Astro.locals.user;
         z-index: 1;
         pointer-events: none;
       }
-      
+
       /* Watermark protection */
       @media print {
         img {
@@ -56,86 +56,190 @@ const user = Astro.locals.user;
     </style>
   </head>
   <body class="bg-[--color-brand-beige] text-[--color-brand-blue]">
-    <nav class="bg-[--color-brand-offwhite]/90 backdrop-blur-sm border-b-2 border-[--color-brand-purple]/20 shadow-sm">
+    <nav
+      class="bg-[--color-brand-offwhite]/90 backdrop-blur-sm border-b-2 border-[--color-brand-purple]/20 shadow-sm"
+    >
       <div class="max-w-6xl mx-auto px-6">
         <div class="flex justify-between items-center h-16">
           <div class="flex items-center space-x-8">
             <a href="/" class="flex items-center space-x-3 group">
-              <div class="w-10 h-10 rounded-xl bg-gradient-to-br from-[--color-brand-purple] to-[--color-brand-coral] p-1.5 group-hover:scale-110 group-hover:rotate-3 transition-all duration-300 shadow-md">
+              <div
+                class="w-10 h-10 rounded-xl bg-gradient-to-br from-[--color-brand-purple] to-[--color-brand-coral] p-1.5 group-hover:scale-110 group-hover:rotate-3 transition-all duration-300 shadow-md"
+              >
                 <img src="/logo.svg" alt="Foto's Logo" class="w-full h-full" />
               </div>
-              <span class="text-xl font-bold text-[--color-brand-blue] group-hover:text-[--color-brand-purple] transition-colors">Foto's</span>
+              <span
+                class="text-xl font-bold text-[--color-brand-blue] group-hover:text-[--color-brand-purple] transition-colors"
+                >SvK Shop</span
+              >
             </a>
-            {user && (
-              <div class="hidden md:flex items-center space-x-6">
-                <a href="/cart" class="text-sm text-[--color-brand-blue]/80 hover:text-[--color-brand-coral] transition-colors flex items-center space-x-1">
-                  <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 11V7a4 4 0 00-8 0v4M5 9h14l1 12H4L5 9z"></path>
-                  </svg>
-                  <span>Winkelwagen</span>
-                </a>
-                <a href="/orders" class="text-sm text-[--color-brand-blue]/80 hover:text-[--color-brand-coral] transition-colors flex items-center space-x-1">
-                  <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2"></path>
-                  </svg>
-                  <span>Mijn Bestellingen</span>
-                </a>
-                {user.is_admin && (
-                  <>
-                    <a href="/admin/orders" class="text-sm text-[--color-brand-blue]/80 hover:text-[--color-brand-coral] transition-colors flex items-center space-x-1">
-                      <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z"></path>
-                      </svg>
-                      <span>Dashboard</span>
-                    </a>
-                    <a href="/admin/upload" class="text-sm text-[--color-brand-blue]/80 hover:text-[--color-brand-coral] transition-colors flex items-center space-x-1">
-                      <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 16a4 4 0 01-.88-7.903A5 5 0 1115.9 6L16 6a5 5 0 011 9.9M15 13l-3-3m0 0l-3 3m3-3v12"></path>
-                      </svg>
-                      <span>Upload</span>
-                    </a>
-                  </>
-                )}
-              </div>
-            )}
+            {
+              user && (
+                <div class="hidden md:flex items-center space-x-6">
+                  <a
+                    href="/cart"
+                    class="text-sm text-[--color-brand-blue]/80 hover:text-[--color-brand-coral] transition-colors flex items-center space-x-1"
+                  >
+                    <svg
+                      class="w-4 h-4"
+                      fill="none"
+                      stroke="currentColor"
+                      viewBox="0 0 24 24"
+                    >
+                      <path
+                        stroke-linecap="round"
+                        stroke-linejoin="round"
+                        stroke-width="2"
+                        d="M16 11V7a4 4 0 00-8 0v4M5 9h14l1 12H4L5 9z"
+                      />
+                    </svg>
+                    <span>Winkelwagen</span>
+                  </a>
+                  <a
+                    href="/orders"
+                    class="text-sm text-[--color-brand-blue]/80 hover:text-[--color-brand-coral] transition-colors flex items-center space-x-1"
+                  >
+                    <svg
+                      class="w-4 h-4"
+                      fill="none"
+                      stroke="currentColor"
+                      viewBox="0 0 24 24"
+                    >
+                      <path
+                        stroke-linecap="round"
+                        stroke-linejoin="round"
+                        stroke-width="2"
+                        d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2"
+                      />
+                    </svg>
+                    <span>Mijn Bestellingen</span>
+                  </a>
+                  {user.is_admin && (
+                    <>
+                      <a
+                        href="/admin/orders"
+                        class="text-sm text-[--color-brand-blue]/80 hover:text-[--color-brand-coral] transition-colors flex items-center space-x-1"
+                      >
+                        <svg
+                          class="w-4 h-4"
+                          fill="none"
+                          stroke="currentColor"
+                          viewBox="0 0 24 24"
+                        >
+                          <path
+                            stroke-linecap="round"
+                            stroke-linejoin="round"
+                            stroke-width="2"
+                            d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z"
+                          />
+                        </svg>
+                        <span>Dashboard</span>
+                      </a>
+                      <a
+                        href="/admin/upload"
+                        class="text-sm text-[--color-brand-blue]/80 hover:text-[--color-brand-coral] transition-colors flex items-center space-x-1"
+                      >
+                        <svg
+                          class="w-4 h-4"
+                          fill="none"
+                          stroke="currentColor"
+                          viewBox="0 0 24 24"
+                        >
+                          <path
+                            stroke-linecap="round"
+                            stroke-linejoin="round"
+                            stroke-width="2"
+                            d="M7 16a4 4 0 01-.88-7.903A5 5 0 1115.9 6L16 6a5 5 0 011 9.9M15 13l-3-3m0 0l-3 3m3-3v12"
+                          />
+                        </svg>
+                        <span>Upload</span>
+                      </a>
+                    </>
+                  )}
+                </div>
+              )
+            }
           </div>
           <div class="flex items-center space-x-4">
-            {user ? (
-              <div class="flex items-center space-x-4">
-                <div class="flex items-center space-x-3 px-4 py-2 bg-white/50 rounded-xl border border-[--color-brand-purple]/20">
-                  <div class="w-8 h-8 rounded-full bg-gradient-to-br from-[--color-brand-purple] to-[--color-brand-coral] flex items-center justify-center text-gray-900 text-sm font-bold shadow-md">
-                    {user.name.charAt(0).toUpperCase()}
+            {
+              user ? (
+                <div class="flex items-center space-x-4">
+                  <div class="flex items-center space-x-3 px-4 py-2 bg-white/50 rounded-xl border border-[--color-brand-purple]/20">
+                    <div class="w-8 h-8 rounded-full bg-gradient-to-br from-[--color-brand-purple] to-[--color-brand-coral] flex items-center justify-center text-gray-900 text-sm font-bold shadow-md">
+                      {user.name.charAt(0).toUpperCase()}
+                    </div>
+                    <span class="text-[--color-brand-blue] font-semibold text-sm">
+                      {user.name}
+                    </span>
                   </div>
-                  <span class="text-[--color-brand-blue] font-semibold text-sm">{user.name}</span>
+                  <a
+                    href="/logout"
+                    class="px-4 py-2 text-sm bg-white border-2 border-[--color-brand-coral]/30 text-[--color-brand-coral] hover:border-[--color-brand-coral] hover:bg-[--color-brand-coral]/5 rounded-xl transition-all font-semibold shadow-sm hover:shadow-md flex items-center space-x-2 group"
+                  >
+                    <svg
+                      class="w-4 h-4 group-hover:translate-x-1 transition-transform"
+                      fill="none"
+                      stroke="currentColor"
+                      viewBox="0 0 24 24"
+                    >
+                      <path
+                        stroke-linecap="round"
+                        stroke-linejoin="round"
+                        stroke-width="2"
+                        d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1"
+                      />
+                    </svg>
+                    <span>Uitloggen</span>
+                  </a>
                 </div>
-                <a href="/logout" class="px-4 py-2 text-sm bg-white border-2 border-[--color-brand-coral]/30 text-[--color-brand-coral] hover:border-[--color-brand-coral] hover:bg-[--color-brand-coral]/5 rounded-xl transition-all font-semibold shadow-sm hover:shadow-md flex items-center space-x-2 group">
-                  <svg class="w-4 h-4 group-hover:translate-x-1 transition-transform" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1"></path>
-                  </svg>
-                  <span>Uitloggen</span>
-                </a>
-              </div>
-            ) : (
-              <div class="flex items-center space-x-3">
-                <a href="/login" class="px-4 py-2 text-sm bg-white border-2 border-[--color-brand-purple]/30 text-[--color-brand-blue] hover:border-[--color-brand-purple] hover:bg-[--color-brand-purple]/5 rounded-xl transition-all font-semibold shadow-sm hover:shadow-md flex items-center space-x-2 group">
-                  <svg class="w-4 h-4 group-hover:scale-110 transition-transform" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 16l-4-4m0 0l4-4m-4 4h14m-5 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h7a3 3 0 013 3v1"></path>
-                  </svg>
-                  <span>Inloggen</span>
-                </a>
-                <a href="/register" class="px-5 py-2 bg-gradient-to-r from-[--color-brand-blue] to-[--color-brand-purple] text-gray-900 rounded-xl hover:shadow-lg hover:scale-105 transition-all text-sm font-bold shadow-md flex items-center space-x-2 group">
-                  <svg class="w-4 h-4 group-hover:scale-110 transition-transform" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M18 9v3m0 0v3m0-3h3m-3 0h-3m-2-5a4 4 0 11-8 0 4 4 0 018 0zM3 20a6 6 0 0112 0v1H3v-1z"></path>
-                  </svg>
-                  <span>Registreren</span>
-                </a>
-              </div>
-            )}
+              ) : (
+                <div class="flex items-center space-x-3">
+                  <a
+                    href="/login"
+                    class="px-4 py-2 text-sm bg-white border-2 border-[--color-brand-purple]/30 text-[--color-brand-blue] hover:border-[--color-brand-purple] hover:bg-[--color-brand-purple]/5 rounded-xl transition-all font-semibold shadow-sm hover:shadow-md flex items-center space-x-2 group"
+                  >
+                    <svg
+                      class="w-4 h-4 group-hover:scale-110 transition-transform"
+                      fill="none"
+                      stroke="currentColor"
+                      viewBox="0 0 24 24"
+                    >
+                      <path
+                        stroke-linecap="round"
+                        stroke-linejoin="round"
+                        stroke-width="2"
+                        d="M11 16l-4-4m0 0l4-4m-4 4h14m-5 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h7a3 3 0 013 3v1"
+                      />
+                    </svg>
+                    <span>Inloggen</span>
+                  </a>
+                  <a
+                    href="/register"
+                    class="px-5 py-2 bg-gradient-to-r from-[--color-brand-blue] to-[--color-brand-purple] text-gray-900 rounded-xl hover:shadow-lg hover:scale-105 transition-all text-sm font-bold shadow-md flex items-center space-x-2 group"
+                  >
+                    <svg
+                      class="w-4 h-4 group-hover:scale-110 transition-transform"
+                      fill="none"
+                      stroke="currentColor"
+                      viewBox="0 0 24 24"
+                    >
+                      <path
+                        stroke-linecap="round"
+                        stroke-linejoin="round"
+                        stroke-width="2"
+                        d="M18 9v3m0 0v3m0-3h3m-3 0h-3m-2-5a4 4 0 11-8 0 4 4 0 018 0zM3 20a6 6 0 0112 0v1H3v-1z"
+                      />
+                    </svg>
+                    <span>Registreren</span>
+                  </a>
+                </div>
+              )
+            }
           </div>
         </div>
       </div>
     </nav>
-    
+
     <main class="max-w-6xl mx-auto px-6 py-10">
       <slot />
     </main>

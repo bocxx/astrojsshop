@@ -33,27 +33,25 @@ const initialHasMore = totalPhotos > INITIAL_LOAD;
 
 <Layout title="Fotogalerij">
   <div class="min-h-screen pb-24">
-    <!-- Modern Sticky Header -->
-    <header class="sticky top-0 z-30 -mx-8 mb-8 backdrop-blur-xl bg-white/80 border-b border-[--color-brand-purple]/10 shadow-sm">
-      <div class="max-w-7xl mx-auto px-8 py-6">
-        <div class="flex items-center justify-between gap-4 flex-wrap">
+    <!-- Header -->
+    <header class="mb-8">
+      <div class="flex items-center justify-between gap-4 flex-wrap">
 
-          <!-- Title Section -->
-          <div class="space-y-1">
-            <h1 class="text-4xl font-bold bg-gradient-to-r from-[--color-brand-blue] via-[--color-brand-purple] to-[--color-brand-coral] bg-clip-text text-transparent">
-              Beschikbare Foto's
-            </h1>
-            <p class="text-sm text-[--color-brand-blue]/60">
-              Selecteer de foto's die je wilt bestellen
-            </p>
-          </div>
-
-          <!-- Photo Counter Badge -->
-          <div class="px-5 py-2.5 text-sm font-semibold text-[--color-brand-blue] bg-gradient-to-br from-[--color-brand-purple]/5 via-[--color-brand-coral]/5 to-[--color-brand-blue]/5 border border-[--color-brand-purple]/20 rounded-2xl shadow-sm backdrop-blur-sm">
-            <span id="photoCount">{totalPhotos}</span> foto's
-          </div>
-
+        <!-- Title Section -->
+        <div class="space-y-1">
+          <h1 class="text-4xl font-bold bg-gradient-to-r from-[--color-brand-blue] via-[--color-brand-purple] to-[--color-brand-coral] bg-clip-text text-transparent">
+            SvK Shop
+          </h1>
+          <p class="text-sm text-[--color-brand-blue]/60">
+            Selecteer de foto's die je wilt bestellen
+          </p>
         </div>
+
+        <!-- Photo Counter Badge -->
+        <div class="px-5 py-2.5 text-sm font-semibold text-[--color-brand-blue] bg-gradient-to-br from-[--color-brand-purple]/5 via-[--color-brand-coral]/5 to-[--color-brand-blue]/5 border border-[--color-brand-purple]/20 rounded-2xl shadow-sm backdrop-blur-sm">
+          <span id="photoCount">{totalPhotos}</span> foto's
+        </div>
+
       </div>
     </header>
 
