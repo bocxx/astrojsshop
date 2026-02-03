@@ -87,17 +87,20 @@ const initialHasMore = totalPhotos > INITIAL_LOAD;
             </div>
             <!-- Add to Cart Button -->
             <button
-              class="add-to-cart group/btn relative w-full px-4 py-3 text-sm font-semibold text-white bg-gradient-to-r from-[--color-brand-blue] to-[--color-brand-purple] rounded-2xl overflow-hidden transition-all duration-300 hover:shadow-xl hover:shadow-[--color-brand-purple]/30 hover:scale-105 active:scale-95 flex items-center justify-center space-x-2"
+              class="add-to-cart group/btn relative w-full px-4 py-3 text-sm font-bold text-gray-900 bg-gradient-to-r from-[--color-brand-blue] via-[--color-brand-purple] to-[--color-brand-coral] rounded-2xl overflow-hidden transition-all duration-300 hover:shadow-2xl hover:shadow-[--color-brand-purple]/40 hover:scale-[1.02] active:scale-95 flex items-center justify-center gap-2"
               data-photo-id={photo.id}
               data-photo-name={photo.name}
             >
-              <span class="relative z-10 flex items-center space-x-2">
-                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6v6m0 0v6m0-6h6m-6 0H6"></path>
+              <!-- Shimmer effect -->
+              <div class="absolute inset-0 bg-gradient-to-r from-transparent via-white/20 to-transparent -translate-x-full group-hover/btn:translate-x-full transition-transform duration-1000"></div>
+
+              <!-- Button content -->
+              <span class="relative z-10 flex items-center gap-2">
+                <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M12 6v6m0 0v6m0-6h6m-6 0H6"></path>
                 </svg>
-                <span>Toevoegen</span>
+                <span class="tracking-wide">Toevoegen</span>
               </span>
-              <div class="absolute inset-0 bg-gradient-to-r from-[--color-brand-coral] to-[--color-brand-purple] opacity-0 group-hover/btn:opacity-100 transition-opacity duration-300"></div>
             </button>
           </article>
         </div>
@@ -440,14 +443,14 @@ const initialHasMore = totalPhotos > INITIAL_LOAD;
         // Button feedback animation
         const originalHTML = btn.innerHTML;
         btn.innerHTML = `
-          <span class="relative z-10 flex items-center space-x-2">
-            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path>
+          <span class="relative z-10 flex items-center gap-2">
+            <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M5 13l4 4L19 7"></path>
             </svg>
-            <span>Toegevoegd!</span>
+            <span class="font-bold tracking-wide">Toegevoegd!</span>
           </span>
         `;
-        btn.style.background = 'linear-gradient(to right, var(--color-brand-coral), var(--color-brand-purple))';
+        btn.style.background = 'linear-gradient(to right, #10b981, #059669)';
 
         setTimeout(() => {
           btn.innerHTML = originalHTML;
@@ -662,17 +665,17 @@ const initialHasMore = totalPhotos > INITIAL_LOAD;
             ${photo.description && photo.description !== 'Uploaded via script' ? `<p class="text-xs text-[--color-brand-blue]/50 line-clamp-2">${photo.description}</p>` : ''}
           </div>
           <button
-            class="add-to-cart w-full px-4 py-3 bg-gradient-to-r from-[--color-brand-blue] to-[--color-brand-purple] text-white rounded-2xl hover:shadow-xl hover:shadow-[--color-brand-purple]/30 hover:scale-105 active:scale-95 transition-all duration-300 text-sm font-semibold flex items-center justify-center space-x-2 relative overflow-hidden group/btn"
+            class="add-to-cart group/btn relative w-full px-4 py-3 text-sm font-bold text-gray-900 bg-gradient-to-r from-[--color-brand-blue] via-[--color-brand-purple] to-[--color-brand-coral] rounded-2xl overflow-hidden transition-all duration-300 hover:shadow-2xl hover:shadow-[--color-brand-purple]/40 hover:scale-[1.02] active:scale-95 flex items-center justify-center gap-2"
             data-photo-id="${photo.id}"
             data-photo-name="${photo.name}"
           >
-            <span class="relative z-10 flex items-center space-x-2">
-              <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6v6m0 0v6m0-6h6m-6 0H6"></path>
+            <div class="absolute inset-0 bg-gradient-to-r from-transparent via-white/20 to-transparent -translate-x-full group-hover/btn:translate-x-full transition-transform duration-1000"></div>
+            <span class="relative z-10 flex items-center gap-2">
+              <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M12 6v6m0 0v6m0-6h6m-6 0H6"></path>
               </svg>
-              <span>Toevoegen</span>
+              <span class="tracking-wide">Toevoegen</span>
             </span>
-            <div class="absolute inset-0 bg-gradient-to-r from-[--color-brand-coral] to-[--color-brand-purple] opacity-0 group-hover/btn:opacity-100 transition-opacity duration-300"></div>
           </button>
         </div>
       `;
