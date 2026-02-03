@@ -1,12 +1,6 @@
 name = "astrojsshop"
 pages_build_output_dir = "dist"
-main = "dist/_worker.js/index.js"
 compatibility_date = "2026-01-29"
-compatibility_flags = ["nodejs_compat", "disable_nodejs_process_v2"]
-
-# Static assets configuration
-[assets]
-directory = "./dist"
 
 # D1 Database binding
 [[d1_databases]]
