@@ -2,9 +2,20 @@
 import Layout from '../layouts/Layout.astro';
 import { PhotoDB } from '../lib/db';
 
+// Access Cloudflare bindings with fallback
+const runtime = Astro.locals.runtime;
+if (!runtime?.env?.DB || !runtime?.env?.PHOTOS) {
+  console.error('Missing Cloudflare bindings', {
+    hasRuntime: !!runtime,
+    hasDB: !!runtime?.env?.DB,
+    hasPHOTOS: !!runtime?.env?.PHOTOS
+  });
+  return new Response('Configuration error', { status: 500 });
+}
+
 const db = new PhotoDB(
-  Astro.locals.runtime.env.DB,
-  Astro.locals.runtime.env.PHOTOS
+  runtime.env.DB,
+  runtime.env.PHOTOS
 );
 
 const user = Astro.locals.user;
