@@ -41,7 +41,19 @@ CREATE TABLE order_items (
   FOREIGN KEY (photo_id) REFERENCES photos(id)
 );
 
+-- Password reset tokens table
+CREATE TABLE password_reset_tokens (
+  id TEXT PRIMARY KEY,
+  user_id TEXT NOT NULL,
+  token TEXT UNIQUE NOT NULL,
+  expires_at INTEGER NOT NULL,
+  created_at INTEGER DEFAULT (unixepoch()),
+  FOREIGN KEY (user_id) REFERENCES users(id)
+);
+
 -- Indexes for performance
 CREATE INDEX idx_orders_user ON orders(user_id);
 CREATE INDEX idx_order_items_order ON order_items(order_id);
 CREATE INDEX idx_photos_available ON photos(available);
+CREATE INDEX idx_password_reset_tokens_token ON password_reset_tokens(token);
+CREATE INDEX idx_password_reset_tokens_user ON password_reset_tokens(user_id);

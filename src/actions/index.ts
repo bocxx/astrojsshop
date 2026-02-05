@@ -29,6 +29,66 @@ export const server = {
           maxAge: 60 * 60 * 24 * 7, // 1 week
         });
 
+        // Send welcome email
+        const apiKey = context.locals.runtime.env.RESEND_API_KEY;
+        if (apiKey) {
+          const resend = new Resend(apiKey);
+          try {
+            await resend.emails.send({
+              from: 'bestellingen@resend.bocxx.nl',
+              replyTo: 'hallo@wijvancees.nl',
+              to: email,
+              subject: '🎉 Welkom bij Foto Bestellen!',
+              html: `
+              <!DOCTYPE html>
+              <html>
+                <head>
+                  <meta charset="utf-8">
+                  <style>
+                    body { font-family: Arial, sans-serif; line-height: 1.6; color: #333; }
+                    .container { max-width: 600px; margin: 0 auto; padding: 20px; }
+                    .header { background: linear-gradient(to right, #37469b, #bd90c4, #ff7e6d); color: white; padding: 20px; text-align: center; border-radius: 10px 10px 0 0; }
+                    .content { background: #f9f9f9; padding: 30px; border-radius: 0 0 10px 10px; }
+                    .highlight { background: white; padding: 15px; margin: 15px 0; border-left: 4px solid #37469b; }
+                    .footer { text-align: center; padding: 20px; color: #666; font-size: 12px; }
+                  </style>
+                </head>
+                <body>
+                  <div class="container">
+                    <div class="header">
+                      <h1>🎉 Welkom!</h1>
+                    </div>
+                    <div class="content">
+                      <p>Hoi <strong>${name}</strong>,</p>
+                      <p>Welkom bij Foto Bestellen! Je account is succesvol aangemaakt.</p>
+                      
+                      <div class="highlight">
+                        <h2>Wat kun je nu doen?</h2>
+                        <ul>
+                          <li>📸 Bekijk onze foto collectie</li>
+                          <li>🛒 Voeg foto's toe aan je winkelwagen</li>
+                          <li>✅ Plaats een bestelling</li>
+                        </ul>
+                      </div>
+                      
+                      <p>Heb je vragen? Beantwoord gerust deze email, we helpen je graag!</p>
+                      
+                      <p>Met vriendelijke groet,<br>Het Foto Team</p>
+                    </div>
+                    <div class="footer">
+                      <p>Dit is een geautomatiseerde welkomstmail</p>
+                    </div>
+                  </div>
+                </body>
+              </html>
+            `,
+            });
+            console.log('✅ Welkomstmail verzonden naar:', email);
+          } catch (emailError) {
+            console.error('❌ Welkomstmail fout:', emailError);
+          }
+        }
+
         return { success: true, user };
       } catch (error: any) {
         if (error.message?.includes('UNIQUE')) {
@@ -144,7 +204,8 @@ export const server = {
         // Admin notification email
         console.log('📤 Versturen admin email naar:', adminEmail);
         const adminResult = await resend.emails.send({
-          from: 'onboarding@resend.dev',
+          from: 'bestellingen@resend.bocxx.nl',
+          replyTo: 'hallo@wijvancees.nl',
           to: adminEmail,
           subject: `📸 Nieuwe Foto Bestelling: ${orderNumber}`,
           html: `
@@ -204,7 +265,8 @@ export const server = {
         // Customer confirmation email
         console.log('📤 Versturen klant email naar:', context.locals.user.email);
         const customerResult = await resend.emails.send({
-          from: 'onboarding@resend.dev',
+          from: 'bestellingen@resend.bocxx.nl',
+          replyTo: 'hallo@wijvancees.nl',
           to: context.locals.user.email,
           subject: `✅ Bestellingsbevestiging: ${orderNumber}`,
           html: `
@@ -337,7 +399,8 @@ export const server = {
 
       // Resend admin notification email
       await resend.emails.send({
-        from: 'onboarding@resend.dev',
+        from: 'bestellingen@resend.bocxx.nl',
+        replyTo: 'hallo@wijvancees.nl',
         to: context.locals.runtime.env.ADMIN_EMAIL,
         subject: `📸 [OPNIEUW VERZONDEN] Foto Bestelling: ${order.order_number}`,
         html: `
@@ -397,7 +460,8 @@ export const server = {
 
       // Resend customer confirmation email
       await resend.emails.send({
-        from: 'onboarding@resend.dev',
+        from: 'bestellingen@resend.bocxx.nl',
+        replyTo: 'hallo@wijvancees.nl',
         to: order.email,
         subject: `✅ [HERINNERING] Bestellingsbevestiging: ${order.order_number}`,
         html: `
@@ -454,6 +518,130 @@ export const server = {
       });
 
       return { success: true, orderNumber: order.order_number };
+    },
+  }),
+
+  requestPasswordReset: defineAction({
+    accept: 'form',
+    input: z.object({
+      email: z.string().email(),
+    }),
+    handler: async ({ email }, context) => {
+      const db = new PhotoDB(
+        context.locals.runtime.env.DB,
+        context.locals.runtime.env.PHOTOS
+      );
+
+      // Find user by email
+      const user = await db.getUserByEmail(email);
+
+      // Always return success to prevent email enumeration
+      if (!user) {
+        return { success: true };
+      }
+
+      // Create reset token
+      const token = await db.createPasswordResetToken(user.id);
+
+      // Send reset email
+      const apiKey = context.locals.runtime.env.RESEND_API_KEY;
+      if (!apiKey) {
+        console.error('⚠️ RESEND_API_KEY niet gevonden');
+        return { success: true };
+      }
+
+      const resend = new Resend(apiKey);
+      const baseUrl = new URL(context.request.url).origin;
+      const resetUrl = `${baseUrl}/reset-password?token=${token}`;
+
+      try {
+        await resend.emails.send({
+          from: 'bestellingen@resend.bocxx.nl',
+          replyTo: 'hallo@wijvancees.nl',
+          to: user.email,
+          subject: '🔑 Wachtwoord Resetten - Foto Bestellen',
+          html: `
+            <!DOCTYPE html>
+            <html>
+              <head>
+                <meta charset="utf-8">
+                <style>
+                  body { font-family: Arial, sans-serif; line-height: 1.6; color: #333; }
+                  .container { max-width: 600px; margin: 0 auto; padding: 20px; }
+                  .header { background: linear-gradient(to right, #37469b, #bd90c4, #ff7e6d); color: white; padding: 20px; text-align: center; border-radius: 10px 10px 0 0; }
+                  .content { background: #f9f9f9; padding: 30px; border-radius: 0 0 10px 10px; }
+                  .button { display: inline-block; background: linear-gradient(to right, #37469b, #bd90c4); color: white; padding: 15px 30px; text-decoration: none; border-radius: 25px; font-weight: bold; margin: 20px 0; }
+                  .footer { text-align: center; padding: 20px; color: #666; font-size: 12px; }
+                  .warning { background: #fff3cd; border-left: 4px solid #ffc107; padding: 10px 15px; margin: 15px 0; }
+                </style>
+              </head>
+              <body>
+                <div class="container">
+                  <div class="header">
+                    <h1>🔑 Wachtwoord Resetten</h1>
+                  </div>
+                  <div class="content">
+                    <p>Hoi <strong>${user.name}</strong>,</p>
+                    <p>We hebben een verzoek ontvangen om je wachtwoord te resetten. Klik op de onderstaande knop om een nieuw wachtwoord in te stellen:</p>
+                    
+                    <div style="text-align: center;">
+                      <a href="${resetUrl}" class="button">Wachtwoord Resetten</a>
+                    </div>
+                    
+                    <div class="warning">
+                      <strong>⚠️ Let op:</strong> Deze link is 1 uur geldig.
+                    </div>
+                    
+                    <p>Als je geen wachtwoord reset hebt aangevraagd, kun je deze email negeren. Je wachtwoord blijft ongewijzigd.</p>
+                    
+                    <p>Met vriendelijke groet,<br>Het Foto Team</p>
+                  </div>
+                  <div class="footer">
+                    <p>Dit is een geautomatiseerde email - niet beantwoorden</p>
+                  </div>
+                </div>
+              </body>
+            </html>
+          `,
+        });
+        console.log('✅ Password reset email verzonden naar:', user.email);
+      } catch (error) {
+        console.error('❌ Email fout:', error);
+      }
+
+      return { success: true };
+    },
+  }),
+
+  resetPassword: defineAction({
+    accept: 'form',
+    input: z.object({
+      token: z.string(),
+      password: z.string().min(8),
+    }),
+    handler: async ({ token, password }, context) => {
+      const db = new PhotoDB(
+        context.locals.runtime.env.DB,
+        context.locals.runtime.env.PHOTOS
+      );
+
+      // Verify token
+      const tokenData = await db.verifyPasswordResetToken(token);
+
+      if (!tokenData) {
+        throw new ActionError({
+          code: 'BAD_REQUEST',
+          message: 'Ongeldige of verlopen reset link',
+        });
+      }
+
+      // Update password
+      await db.updatePassword(tokenData.user_id, password);
+
+      // Delete the used token
+      await db.deletePasswordResetToken(token);
+
+      return { success: true };
     },
   }),
 };

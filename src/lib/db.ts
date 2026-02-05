@@ -160,4 +160,71 @@ export class PhotoDB {
       .all();
     return results;
   }
+
+  // ========== Password Reset ==========
+  async getUserByEmail(email: string) {
+    return this.db
+      .prepare(`SELECT id, email, name FROM users WHERE email = ?`)
+      .bind(email)
+      .first<{ id: string; email: string; name: string }>();
+  }
+
+  async createPasswordResetToken(userId: string): Promise<string> {
+    // Delete any existing tokens for this user
+    await this.db
+      .prepare(`DELETE FROM password_reset_tokens WHERE user_id = ?`)
+      .bind(userId)
+      .run();
+
+    const id = crypto.randomUUID();
+    const token = crypto.randomUUID();
+    // Token expires in 1 hour
+    const expiresAt = Math.floor(Date.now() / 1000) + 60 * 60;
+
+    await this.db
+      .prepare(
+        `INSERT INTO password_reset_tokens (id, user_id, token, expires_at) VALUES (?, ?, ?, ?)`
+      )
+      .bind(id, userId, token, expiresAt)
+      .run();
+
+    return token;
+  }
+
+  async verifyPasswordResetToken(token: string) {
+    const now = Math.floor(Date.now() / 1000);
+    const result = await this.db
+      .prepare(
+        `SELECT prt.*, u.email, u.name 
+         FROM password_reset_tokens prt 
+         JOIN users u ON prt.user_id = u.id 
+         WHERE prt.token = ? AND prt.expires_at > ?`
+      )
+      .bind(token, now)
+      .first<{
+        id: string;
+        user_id: string;
+        token: string;
+        expires_at: number;
+        email: string;
+        name: string;
+      }>();
+
+    return result;
+  }
+
+  async updatePassword(userId: string, newPassword: string) {
+    const passwordHash = await bcrypt.hash(newPassword, 10);
+    await this.db
+      .prepare(`UPDATE users SET password_hash = ? WHERE id = ?`)
+      .bind(passwordHash, userId)
+      .run();
+  }
+
+  async deletePasswordResetToken(token: string) {
+    await this.db
+      .prepare(`DELETE FROM password_reset_tokens WHERE token = ?`)
+      .bind(token)
+      .run();
+  }
 }
